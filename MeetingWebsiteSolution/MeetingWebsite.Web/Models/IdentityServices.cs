@@ -30,7 +30,7 @@ namespace MeetingWebsite.Web.Models
                     opts.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
                 }).AddJwtBearer(opts =>
                 {
-                    opts.RequireHttpsMetadata = false; // Set to true when configure https
+                    opts.RequireHttpsMetadata = true;
                     opts.SaveToken = true;
                     opts.TokenValidationParameters = new()
                     {

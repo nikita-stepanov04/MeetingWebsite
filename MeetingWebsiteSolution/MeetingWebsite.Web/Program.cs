@@ -17,16 +17,12 @@ namespace MeetingWebsite.Web
             builder.Services.AddInfrastructureServices(builder.Configuration);
             builder.Services.AddIdentityServices(builder.Configuration);
 
-            builder.Services.Configure<CookiePolicyOptions>(opts =>
-            {
-                //opts.CheckConsentNeeded = context => true;
-                //opts.MinimumSameSitePolicy = SameSiteMode.Strict;
-            });
-
             builder.Services.AddScoped(typeof(IRepository<,>), typeof(EFRepository<,>));
             builder.Services.AddScoped<IUserService, UserService>();
 
             var app = builder.Build();
+
+            app.UseHttpsRedirection();
 
             app.UseStaticFiles();
 

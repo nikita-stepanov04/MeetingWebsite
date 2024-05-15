@@ -36,22 +36,29 @@ namespace MeetingWebsite.Web.Controllers
 
         [HttpPost("login")]
         public async Task<IActionResult> LoginPost(LoginViewModel model)
-        {
+        { 
             if (ModelState.IsValid)
             {
                 if (await CheckPassword(model))
                 {
                     var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSecret"]!));
                     var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
+                    var expires = DateTime.UtcNow.AddHours(2);
 
                     var token = new JwtSecurityToken(
                         claims: [new Claim(ClaimTypes.Name, model.Username)],
-                        expires: DateTime.UtcNow.AddHours(2),
+                        expires: expires,
                         signingCredentials: credentials
                     );
 
                     var handler = new JwtSecurityTokenHandler();
-                    Response.Cookies.Append("Bearer", handler.WriteToken(token));
+                    Response.Cookies.Append("Bearer", handler.WriteToken(token), 
+                        new CookieOptions()
+                        {
+                            Expires = expires,
+                            Secure = true,
+                            IsEssential = true
+                        });
                     return RedirectToAction("Index");
                 }
                 else
