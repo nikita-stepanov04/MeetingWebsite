@@ -398,3 +398,4 @@ FodyWeavers.xsd
 *.sln.iml
 
 /MeetingWebsiteSolution/MeetingWebsite.Web/appsettings.Development.json
+/MeetingWebsiteSolution/MeetingWebsite.Web/wwwroot/lib

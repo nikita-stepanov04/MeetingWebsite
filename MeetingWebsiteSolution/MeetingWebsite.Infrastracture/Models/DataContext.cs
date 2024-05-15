@@ -8,8 +8,8 @@ namespace MeetingWebsite.Infrastracture.Models
         public DataContext(DbContextOptions<DataContext> opts)
             : base(opts) { }
 
-        DbSet<User> Users => Set<User>();
-        DbSet<Interest> Interests => Set<Interest>();
+        public DbSet<User> Users => Set<User>();
+        public DbSet<Interest> Interests => Set<Interest>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {

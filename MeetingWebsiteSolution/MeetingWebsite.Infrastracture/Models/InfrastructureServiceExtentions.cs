@@ -1,6 +1,10 @@
-﻿using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Configuration;
+﻿using MeetingWebsite.Infrastracture.Models.Identity;
+using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.IdentityModel.Tokens;
+using System.Text;
 
 namespace MeetingWebsite.Infrastracture.Models
 {
@@ -12,9 +16,13 @@ namespace MeetingWebsite.Infrastracture.Models
             string? connectionString = config.GetConnectionString("DbConnection");
             if (connectionString != null)
             {
-                services.AddDbContext<DataContext>(opts => 
-                    opts.UseSqlServer(connectionString, 
-                    builder => builder.MigrationsAssembly("MeetingWebsite.Infrastracture")));
+                services.AddDbContext<DataContext>(opts =>
+                    opts.UseSqlServer(connectionString, opts
+                        => opts.MigrationsAssembly("MeetingWebsite.Infrastracture")));
+
+                services.AddDbContext<IdentityContext>(opts =>
+                    opts.UseSqlServer(connectionString, opts
+                        => opts.MigrationsAssembly("MeetingWebsite.Infrastracture")));
             }
             else
             {
