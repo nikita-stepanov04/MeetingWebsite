@@ -1,0 +1,16 @@
+﻿@{
+    Layout = "_Layout";    
+}
+
+<div class="page bg-lightblue">
+    <div class="container content d-flex align-items-center py-5">
+        <div class="@(ViewBag.NarrowLayout ?? false
+                ? "col-lg-6 offset-lg-3 col-md-8 offset-md-2 col-12 offset-0"
+                : "col-lg-8 offset-lg-2 col-md-10 offset-md-1 col-12 offset-0")">
+            <div class="main-block">
+                @RenderBody()
+            </div>
+        </div>
+    </div>
+    <partial name="Components/FooterComponent" />
+</div>

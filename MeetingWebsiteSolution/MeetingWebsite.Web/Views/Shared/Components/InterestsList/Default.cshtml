@@ -1,0 +1,21 @@
+﻿@using MeetingWebsite.Domain.Models
+@using System.Text.Json
+@model IEnumerable<Interest>
+
+<div class="row" id="interests">
+    <label for="interests" class="form-label text-center">Interests</label>
+
+    @{ int i = 0; }
+    @foreach(var interest in Model)
+    {              
+        <div class="col-5 offset-@(i % 2 == 0 ? "2" : "") form-check">
+            <input class="form-check-input" name="CheckInterestsIds"
+                type="checkbox" value="@interest.InterestId" id="interest-@(i)"/>
+            <label class="form-check-label" for="interest-@(i)">
+                @interest.InterestType
+            </label>
+        </div>
+
+        i++;
+    }
+</div>

@@ -1,13 +1,22 @@
 ﻿@model LoginViewModel
+@{
+    Layout = "_AccountLayout";
+    ViewBag.Title = "Log In";
+    ViewBag.NarrowLayout = true;
+}
+
+<partial name="_Validation" />
 
 <form asp-action="LoginPost">
-    <label>Username</label>
-    <span asp-validation-for="Username" class="text-danger"></span>
-    <input class="form-control" asp-for="Username" />
-
-    <label>Password</label>
-    <span asp-validation-for="Password" class="text-danger"></span>
-    <input class="form-control" asp-for="Password" />
-
-    <button type="submit" class="btn btn-primary">Submit</button>
+    <h2 class="text-center mb-3">Log in</h2>
+    <div class="mb-3">
+        <partial name="Inputs/UsernameInput" model="Model" />
+    </div>
+    <div class="mb-3">
+        <partial name="Inputs/PasswordInput" model="Model" />
+    </div>
+    <div class="d-grid mt-4 mb-2">
+        <button type="submit" class="btn btn-primary">Submit</button>
+        <a class="link-secondary mt-2 text-center" asp-action="Register">Registration</a>
+    </div>
 </form>

@@ -10,6 +10,9 @@ namespace MeetingWebsite.Web.Models
         public static void SeedIdentity(this WebApplication app) =>
             SeedIdentityAsync(app).Wait();
 
+        public static void SeedData(this WebApplication app) =>
+            SeedDataAsync(app).Wait();
+
         private static async Task SeedIdentityAsync(WebApplication app)
         {
             var serviceProvider = app.Services.CreateScope().ServiceProvider;
@@ -51,6 +54,33 @@ namespace MeetingWebsite.Web.Models
                 {
                     await userManager.AddToRoleAsync(user, role);
                 }
+            }
+        }
+
+        private static async Task SeedDataAsync(WebApplication app)
+        {
+            var interestService = app.Services.CreateScope()
+                .ServiceProvider.GetRequiredService<IInterestService>();
+
+
+            if ((await interestService.GetAllAsync()).Count() == 0)
+            {
+                List<Interest> interests = new()
+                {
+                    new Interest() { InterestType = "Traveling" },
+                    new Interest() { InterestType = "Culinary" },
+                    new Interest() { InterestType = "Sports" },
+                    new Interest() { InterestType = "Arts" },
+                    new Interest() { InterestType = "Music" },
+                    new Interest() { InterestType = "Literature" },
+                    new Interest() { InterestType = "Technology" },
+                    new Interest() { InterestType = "Gaming" },
+                    new Interest() { InterestType = "Fitnes" },
+                };
+
+                interests.ForEach(async interest =>
+                    await interestService.CreateAsync(interest));
+                await interestService.SaveChangesAsync();
             }
         }
     }

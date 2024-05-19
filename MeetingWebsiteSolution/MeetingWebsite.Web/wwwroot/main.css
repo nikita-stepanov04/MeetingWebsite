@@ -1,0 +1,33 @@
+.page {
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+}
+
+.content {
+    flex: 1;
+}
+
+.footer {
+    margin-top: auto;
+    background-color: #333;
+    color: #fff;
+}
+
+.bg-lightblue {
+    background: linear-gradient(45deg, rgba(1,126,190,1) 0%, rgba(72,193,255,1) 50%, rgba(138,216,255,1) 100%);
+}
+
+.main-block {
+    background-color: rgb(248, 249, 250);
+    padding: 1rem;
+    border-radius: 1rem;
+    box-shadow: 0 5px 8px rgba(56, 56, 56, 0.1);
+}
+
+.validation-error {
+    margin-bottom: .25rem !important;
+    color: var(--bs-form-invalid-color);
+    font-size: .875em;
+    display: block !important;
+}

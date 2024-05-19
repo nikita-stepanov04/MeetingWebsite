@@ -1,0 +1,8 @@
+﻿@model LoginViewModel
+
+<label asp-for="Username" class="form-label">Username</label>
+<span asp-validation-for="Username" class="validation-error"></span>
+<div class="input-group">
+    <span class="input-group-text" id="inputGroupPrepend">@@</span>
+    <input class="form-control" asp-for="Username" placeholder="Enter username"/>
+</div>

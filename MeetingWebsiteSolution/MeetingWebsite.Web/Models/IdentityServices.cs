@@ -47,6 +47,12 @@ namespace MeetingWebsite.Web.Models
                         {
                             context.Token = context.Request.Cookies["Bearer"];
                             return Task.CompletedTask;
+                        },
+                        OnChallenge = context =>
+                        {
+                            context.HandleResponse();
+                            context.Response.Redirect("/login");
+                            return Task.CompletedTask;
                         }
                     };
                 });

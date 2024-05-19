@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MeetingWebsite.Infrastracture.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240513185307_Initial")]
+    [Migration("20240519140145_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -20,10 +20,31 @@ namespace MeetingWebsite.Infrastracture.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.4")
+                .HasAnnotation("ProductVersion", "8.0.5")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
+
+            modelBuilder.Entity("MeetingWebsite.Domain.Models.Image", b =>
+                {
+                    b.Property<long>("ImageId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("ImageId"));
+
+                    b.Property<byte[]>("Bitmap")
+                        .IsRequired()
+                        .HasColumnType("varbinary(max)");
+
+                    b.Property<string>("MimeType")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.HasKey("ImageId");
+
+                    b.ToTable("Images");
+                });
 
             modelBuilder.Entity("MeetingWebsite.Domain.Models.Interest", b =>
                 {
@@ -35,7 +56,8 @@ namespace MeetingWebsite.Infrastracture.Migrations
 
                     b.Property<string>("InterestType")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
 
                     b.HasKey("InterestId");
 
@@ -55,16 +77,24 @@ namespace MeetingWebsite.Infrastracture.Migrations
 
                     b.Property<string>("Firstname")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
-                    b.Property<int>("Gender")
-                        .HasColumnType("int");
+                    b.Property<string>("Gender")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<long?>("ImageId")
+                        .HasColumnType("bigint");
 
                     b.Property<string>("Secondname")
                         .IsRequired()
-                        .HasColumnType("nvarchar(max)");
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
 
                     b.HasKey("UserId");
+
+                    b.HasIndex("ImageId");
 
                     b.ToTable("Users");
                 });
@@ -97,6 +127,15 @@ namespace MeetingWebsite.Infrastracture.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserInterest");
+                });
+
+            modelBuilder.Entity("MeetingWebsite.Domain.Models.User", b =>
+                {
+                    b.HasOne("MeetingWebsite.Domain.Models.Image", "Image")
+                        .WithMany()
+                        .HasForeignKey("ImageId");
+
+                    b.Navigation("Image");
                 });
 
             modelBuilder.Entity("UserFriend", b =>

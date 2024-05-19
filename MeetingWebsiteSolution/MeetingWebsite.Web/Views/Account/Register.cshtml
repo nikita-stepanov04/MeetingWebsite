@@ -1,0 +1,48 @@
+﻿@model RegisterViewModel
+
+@{
+    Layout = "_AccountLayout";
+    ViewBag.Title = "Registration";
+}
+
+<partial name="_Validation" />
+<form asp-action="RegisterPost" enctype="multipart/form-data">
+    <h2 class="text-center mb-3">Registration</h2>
+    <div asp-validation-summary="ModelOnly" class="validation-error"></div>
+    <div class="container">
+        <div class="row">
+            <div class="col-md-6 col-sm-12">
+                <div class="mb-3">
+                    <partial name="Inputs/UsernameInputRemoteValidated" model="Model"/>
+                </div>
+                <div class="mb-3">
+                    <partial name="Inputs/PasswordInput" model="Model" />
+                </div>
+                <div class="mb-3">
+                    <partial name="Inputs/FirstnameInput" for="UserData" />
+                </div>
+                <div class="mb-3">
+                    <partial name="Inputs/SecondnameInput" for="UserData" />
+                </div>
+                <div class="mb-3">
+                    <partial name="Inputs/BirthdayInput" for="UserData" />
+                </div>
+                <div class="mb-3">
+                    <partial name="Inputs/GenderInput" for="UserData" />
+                </div>
+            </div>
+            <div class="col-md-6 col-sm-12">
+                <div class="mb-3">
+                    <partial name="Inputs/ImageInput" model="Model" />
+                </div>
+                <div class="mb-3">                    
+                    @await Component.InvokeAsync("InterestsList")
+                </div>                
+            </div>
+        </div>
+    </div>
+    <div class="d-grid mt-4 mb-2">
+        <button type="submit" class="btn btn-primary">Submit</button>
+        <a class="link-secondary mt-2 text-center" asp-action="Login">Log in</a>
+    </div>
+</form>

@@ -19,14 +19,16 @@ namespace MeetingWebsite.Web
 
             builder.Services.AddScoped(typeof(IRepository<,>), typeof(EFRepository<,>));
             builder.Services.AddScoped<IUserService, UserService>();
+            builder.Services.AddScoped<IInterestService, InterestService>();
+            builder.Services.AddScoped<IImageService, ImageService>();            
 
             var app = builder.Build();
 
             app.UseHttpsRedirection();
-
             app.UseStaticFiles();
-
             app.UseCookiePolicy();
+
+            app.UseRouting();
 
             app.UseAuthentication();
             app.UseAuthorization();
@@ -35,6 +37,7 @@ namespace MeetingWebsite.Web
             app.MapDefaultControllerRoute();
 
             app.SeedIdentity();
+            app.SeedData();
 
             app.Run();
         }

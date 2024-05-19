@@ -10,6 +10,7 @@ namespace MeetingWebsite.Infrastracture.Models
 
         public DbSet<User> Users => Set<User>();
         public DbSet<Interest> Interests => Set<Interest>();
+        public DbSet<Image> Images => Set<Image>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -39,7 +40,9 @@ namespace MeetingWebsite.Infrastracture.Models
                     u => u
                         .HasOne<Interest>()
                         .WithMany()
-                        .HasForeignKey("UserId"));                
+                        .HasForeignKey("UserId"));
+            modelBuilder.Entity<User>()
+                .Ignore(u => u.ImageLink);
         }
     }
 }

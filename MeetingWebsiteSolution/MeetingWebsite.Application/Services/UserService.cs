@@ -1,5 +1,6 @@
 ﻿using MeetingWebsite.Domain.Interfaces;
 using MeetingWebsite.Domain.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace MeetingWebsite.Application.Services
 {
@@ -11,8 +12,11 @@ namespace MeetingWebsite.Application.Services
             _userRepository = rep;
         }
         
-        public ValueTask<User?> FindByIdAsync(long id) =>
-            _userRepository.FindByIdAsync(id);
+        public Task<User?> FindByIdAsync(long id) =>
+            _userRepository.GetQueryable()
+                .Include(u => u.Interests)
+                .Include(u => u.Friends)
+                .FirstOrDefaultAsync(u => u.UserId == id);
 
         public Task<User> CreateAsync(User entity) =>
             _userRepository.CreateAsync(entity);
@@ -21,10 +25,7 @@ namespace MeetingWebsite.Application.Services
             _userRepository.UpdateAsync(entity);
 
         public ValueTask<User> DeleteAsync(User entity) =>
-            _userRepository.DeleteAsync(entity);        
-
-        public IEnumerable<User> GetEnumerable() =>
-            _userRepository.GetEnumerable();
+            _userRepository.DeleteAsync(entity);
 
         public Task<int> SaveChangesAsync() =>
             _userRepository.SaveChangesAsync();

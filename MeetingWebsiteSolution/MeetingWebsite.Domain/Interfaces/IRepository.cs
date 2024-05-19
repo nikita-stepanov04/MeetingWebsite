@@ -11,7 +11,7 @@
 
         ValueTask<TEntity> DeleteAsync(TEntity entity);
 
-        IEnumerable<TEntity> GetEnumerable();
+        IQueryable<TEntity> GetQueryable();
 
         Task<int> SaveChangesAsync();
     }

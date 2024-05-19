@@ -1,4 +1,5 @@
 ﻿using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace MeetingWebsite.Domain.Models
 {
@@ -7,33 +8,22 @@ namespace MeetingWebsite.Domain.Models
         public long UserId { get; set; }
 
         [Required]
-        [Length(2, 30)]
+        [StringLength(30, MinimumLength = 2, ErrorMessage = "Firstname must be from 2 to 30 signs long")]
         public string Firstname { get; set; } = string.Empty;
 
         [Required]
-        [Length(2, 30)]
+        [StringLength(30, MinimumLength = 2, ErrorMessage = "Secondname must be from 2 to 30 signs long")]
         public string Secondname { get; set; } = string.Empty;
 
+        [Column(TypeName = "nvarchar(10)")]
         public UserGender Gender { get; set; }
         public DateOnly Birthday { get; set; }
         public IEnumerable<User>? Friends { get; set; }
         public IEnumerable<Interest>? Interests { get; set; }
-    }
 
-    public enum UserGender
-    {
-        Undefined,
-        Male,
-        Female
-    }
+        public long? ImageId { get; set; }
+        public Image? Image { get; set; }
 
-    public class Interest
-    {
-        public long InterestId { get; set; }
-
-        [Required]
-        [Length(3, 10)]
-        public string InterestType { get; set; } = string.Empty;
-        public IEnumerable<User>? Users { get; set; }
+        public string? ImageLink { get; set; }
     }
 }

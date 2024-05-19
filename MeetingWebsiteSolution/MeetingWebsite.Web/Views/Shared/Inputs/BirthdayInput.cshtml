@@ -1,0 +1,6 @@
+﻿@model User
+
+<label asp-for="Birthday" class="form-label">Birthday</label>
+<span asp-validation-for="Birthday" class="validation-error"></span>
+<input class="form-control" asp-for="Birthday" type="date"
+    placeholder="Enter your date of birth" />

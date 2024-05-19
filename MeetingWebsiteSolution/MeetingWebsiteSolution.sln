@@ -11,7 +11,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MeetingWebsite.Infrastractu
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MeetingWebsite.Web", "MeetingWebsite.Web\MeetingWebsite.Web.csproj", "{C87E6651-1868-4A96-A792-9E2F2A6DD283}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "MeetingWebsite.Tests", "MeetingWebsite.Tests\MeetingWebsite.Tests.csproj", "{C2E615C8-9625-4780-AD1D-B4BC4A30816E}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "MeetingWebsite.Tests", "MeetingWebsite.Tests\MeetingWebsite.Tests.csproj", "{C2E615C8-9625-4780-AD1D-B4BC4A30816E}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

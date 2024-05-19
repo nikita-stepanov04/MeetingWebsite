@@ -12,12 +12,26 @@ namespace MeetingWebsite.Infrastracture.Migrations
         protected override void Up(MigrationBuilder migrationBuilder)
         {
             migrationBuilder.CreateTable(
+                name: "Images",
+                columns: table => new
+                {
+                    ImageId = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Bitmap = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
+                    MimeType = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Images", x => x.ImageId);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "Interests",
                 columns: table => new
                 {
                     InterestId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    InterestType = table.Column<string>(type: "nvarchar(max)", nullable: false)
+                    InterestType = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -30,14 +44,20 @@ namespace MeetingWebsite.Infrastracture.Migrations
                 {
                     UserId = table.Column<long>(type: "bigint", nullable: false)
                         .Annotation("SqlServer:Identity", "1, 1"),
-                    Firstname = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Secondname = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    Gender = table.Column<int>(type: "int", nullable: false),
-                    Birthday = table.Column<DateOnly>(type: "date", nullable: false)
+                    Firstname = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Secondname = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
+                    Gender = table.Column<string>(type: "nvarchar(10)", nullable: false),
+                    Birthday = table.Column<DateOnly>(type: "date", nullable: false),
+                    ImageId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
                 {
                     table.PrimaryKey("PK_Users", x => x.UserId);
+                    table.ForeignKey(
+                        name: "FK_Users_Images_ImageId",
+                        column: x => x.ImageId,
+                        principalTable: "Images",
+                        principalColumn: "ImageId");
                 });
 
             migrationBuilder.CreateTable(
@@ -96,6 +116,11 @@ namespace MeetingWebsite.Infrastracture.Migrations
                 name: "IX_UserInterest_UserId",
                 table: "UserInterest",
                 column: "UserId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Users_ImageId",
+                table: "Users",
+                column: "ImageId");
         }
 
         /// <inheritdoc />
@@ -112,6 +137,9 @@ namespace MeetingWebsite.Infrastracture.Migrations
 
             migrationBuilder.DropTable(
                 name: "Users");
+
+            migrationBuilder.DropTable(
+                name: "Images");
         }
     }
 }

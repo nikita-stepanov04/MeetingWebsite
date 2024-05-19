@@ -32,7 +32,7 @@ namespace MeetingWebsite.Infrastracture.EFRepository
                 _context.Set<TEntity>().Remove(entity).Entity);
         }
 
-        public IEnumerable<TEntity> GetEnumerable()
+        public IQueryable<TEntity> GetQueryable()
         {
             return _context.Set<TEntity>();
         }
