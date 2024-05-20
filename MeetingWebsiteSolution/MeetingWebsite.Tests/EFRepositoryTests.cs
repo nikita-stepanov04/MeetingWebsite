@@ -64,7 +64,7 @@ namespace MeetingWebsite.Tests
         public async Task RepositoryGetsUsersEnumerable()
         {
             await SeedRepository();
-            IEnumerable<User> users = _repository.GetEnumerable();
+            IEnumerable<User> users = _repository.GetQueryable();
             
             Assert.NotNull(users);
             Assert.Equal(_user.Firstname, (users.ToArray())[0].Firstname);
