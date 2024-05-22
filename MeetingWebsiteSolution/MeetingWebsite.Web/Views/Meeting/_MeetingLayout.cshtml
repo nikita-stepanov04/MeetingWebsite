@@ -1,0 +1,16 @@
+﻿@{
+    Layout = "_Layout";
+    ViewBag.Title = "Meetings";
+}
+
+<div class="page">
+    @await Component.InvokeAsync("Header")
+    <main class="content">
+        <div class="container-xxl container-fluid py-lg-3 py-xxl-5">
+            <div class="row">
+                @RenderBody()
+            </div>
+        </div>
+    </main>
+    <partial name="Components/FooterComponent" />
+</div>

@@ -28,19 +28,20 @@ namespace MeetingWebsite.Infrastracture.Models
                         .WithMany()
                         .HasForeignKey("FriendId"));
 
-            modelBuilder.Entity<Interest>()
-                .HasMany(i => i.Users)
-                .WithMany(u => u.Interests)
+            modelBuilder.Entity<User>()
+                .HasMany(u => u.Interests)
+                .WithMany(i => i.Users)
                 .UsingEntity<Dictionary<string, object>>(
                     "UserInterest",
-                    i => i
-                        .HasOne<User>()
-                        .WithMany()
-                        .HasForeignKey("InterestId"),
-                    u => u
+                    j => j
                         .HasOne<Interest>()
                         .WithMany()
+                        .HasForeignKey("InterestId"),
+                    j => j
+                        .HasOne<User>()
+                        .WithMany()
                         .HasForeignKey("UserId"));
+
             modelBuilder.Entity<User>()
                 .Ignore(u => u.ImageLink);
         }

@@ -31,3 +31,9 @@
     font-size: .875em;
     display: block !important;
 }
+
+.overflow-ellipsis {
+    text-overflow: ellipsis;
+    overflow: hidden;
+    white-space: nowrap;
+}

@@ -1,0 +1,28 @@
+﻿@model string?
+
+<header>
+    <nav class="navbar bg-body-tertiary">
+        <div class="container-xxl container-fluid">
+            <a class="navbar-brand" asp-action="Index">
+                <img src="~/img/ico.png" width="30" height="30"
+                    class="d-inline-block align-text-top"/>
+                <span class="fw-semibold ms-2">Meetings</span>
+            </a>
+            <div class="d-flex">
+                <form asp-controller="Account" asp-action="Logout" method="get">
+                    <button class="btn btn-secondary link-underline link-underline-opacity-0">
+                        Logout
+                    </button>
+                </form>
+                <a asp-action="" class="position-relative">
+                    <img src=@(Model ?? "/img/avatar.png") width="40" height="40" 
+                        class="d-inline-block align-text-top object-fit-cover rounded-5 ms-3" />
+                    <span class="position-absolute translate-middle badge rounded-pill bg-danger"                          
+                          style="top: 20%; left: 85%;">
+                        0 @* TODO: User friendship requests count *@
+                    </span>
+                </a>
+            </div>
+        </div>
+    </nav>
+</header>

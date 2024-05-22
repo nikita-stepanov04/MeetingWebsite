@@ -94,14 +94,14 @@ namespace MeetingWebsite.Infrastracture.Migrations
                 {
                     table.PrimaryKey("PK_UserInterest", x => new { x.InterestId, x.UserId });
                     table.ForeignKey(
-                        name: "FK_UserInterest_Interests_UserId",
-                        column: x => x.UserId,
+                        name: "FK_UserInterest_Interests_InterestId",
+                        column: x => x.InterestId,
                         principalTable: "Interests",
                         principalColumn: "InterestId",
                         onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
-                        name: "FK_UserInterest_Users_InterestId",
-                        column: x => x.InterestId,
+                        name: "FK_UserInterest_Users_UserId",
+                        column: x => x.UserId,
                         principalTable: "Users",
                         principalColumn: "UserId",
                         onDelete: ReferentialAction.Cascade);

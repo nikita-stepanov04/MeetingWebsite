@@ -11,7 +11,7 @@ using System.Text;
 
 namespace MeetingWebsite.Web.Controllers
 {
-    [Route("/")]
+    [Route("/account")]
     [AutoValidateAntiforgeryToken]
     public class AccountController : Controller
     {
@@ -37,16 +37,16 @@ namespace MeetingWebsite.Web.Controllers
             _imageService = imageService;
         }
 
-        // action for registration testing
-        [Authorize]
-        [HttpGet("index")]
-        public async Task<IActionResult> Index()
-        {
-            var user = await _userManager.FindByNameAsync(User.Identity.Name);
-            user.UserData = await _userDataService.FindByIdAsync(user.UserDataId);
-            user.UserData.ImageLink = Url.Action("GetImage", "Image", new { id = user.UserData.ImageId });
-            return View(user);
-        }
+        //// action for registration testing
+        //[Authorize]
+        //[HttpGet("index")]
+        //public async Task<IActionResult> Index()
+        //{
+        //    var user = await _userManager.FindByNameAsync(User.Identity.Name);
+        //    user.UserData = await _userDataService.FindByIdAsync(user.UserDataId);
+        //    user.UserData.ImageLink = Url.Action("GetImage", "Image", new { id = user.UserData.ImageId });
+        //    return View(user);
+        //}
 
         [HttpGet("login")]
         public IActionResult Login() => View();
@@ -76,7 +76,7 @@ namespace MeetingWebsite.Web.Controllers
                             Secure = true,
                             IsEssential = true
                         });
-                    return RedirectToAction("Index");
+                    return RedirectToAction("Index", "Meeting");
                 }
                 else
                 {
@@ -117,6 +117,15 @@ namespace MeetingWebsite.Web.Controllers
                 ModelState.AddModelError("", "Something went wrong");
             }
             return View("Register");
+        }
+
+        [Authorize]
+        [HttpGet("logout")]
+        public async Task<IActionResult> Logout()
+        {
+            await _singInManager.SignOutAsync();
+            Response.Cookies.Delete("Bearer");
+            return RedirectToAction("Login");
         }
 
         private async Task<bool> CheckPassword(LoginViewModel model)

@@ -12,6 +12,9 @@ namespace MeetingWebsite.Domain.Interfaces
 
         ValueTask<User> DeleteAsync(User entity);
 
+        Task<IEnumerable<User>> FindUsersByFiltersAndPagingInfo(
+            FilterInfo? filters, PagingInfo pagingInfo);
+
         Task<int> SaveChangesAsync();
     }
 }

@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MeetingWebsite.Infrastracture.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240519140145_Initial")]
+    [Migration("20240522091711_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -155,13 +155,13 @@ namespace MeetingWebsite.Infrastracture.Migrations
 
             modelBuilder.Entity("UserInterest", b =>
                 {
-                    b.HasOne("MeetingWebsite.Domain.Models.User", null)
+                    b.HasOne("MeetingWebsite.Domain.Models.Interest", null)
                         .WithMany()
                         .HasForeignKey("InterestId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
 
-                    b.HasOne("MeetingWebsite.Domain.Models.Interest", null)
+                    b.HasOne("MeetingWebsite.Domain.Models.User", null)
                         .WithMany()
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)

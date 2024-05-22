@@ -1,7 +1,6 @@
 ﻿using MeetingWebsite.Infrastracture.Models.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
-using System.Runtime.CompilerServices;
 using System.Text;
 
 namespace MeetingWebsite.Web.Models
@@ -51,7 +50,7 @@ namespace MeetingWebsite.Web.Models
                         OnChallenge = context =>
                         {
                             context.HandleResponse();
-                            context.Response.Redirect("/login");
+                            context.Response.Redirect("/account/login");
                             return Task.CompletedTask;
                         }
                     };

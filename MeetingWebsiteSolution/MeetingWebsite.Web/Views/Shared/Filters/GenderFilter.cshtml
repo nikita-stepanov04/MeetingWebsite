@@ -1,0 +1,29 @@
+﻿@model FilterInfo?
+
+<label for="GenderFilters" class="form-label">Gender:</label>
+<div class="d-flex" id="GenderFilters">    
+    <div class="form-check">
+        <input class="form-check-input" type="checkbox" name="FilterInfo.Genders"
+            value="@((int)UserGender.Male)" id="MaleGenderFilter"
+            @if (Model != null) {
+                @(Model.Genders.Contains(UserGender.Male) ? "checked" : "")
+            }/>
+        <label class="form-check-label" for="MaleGenderFilter">@UserGender.Male</label>
+    </div>
+    <div class="form-check ms-2">
+        <input class="form-check-input" type="checkbox" name="FilterInfo.Genders"
+            value="@((int)UserGender.Female)" id="FemaleGenderFilter"
+            @if (Model != null) {
+                @(Model.Genders.Contains(UserGender.Female) ? "checked" : "")
+            } />
+        <label class="form-check-label" for="FemaleGenderFilter">@UserGender.Female</label>
+    </div>
+    <div class="form-check ms-2">
+        <input class="form-check-input" type="checkbox" name="FilterInfo.Genders"
+            value="@((int)UserGender.Undefined)" id="UndefinedGenderFilter"
+            @if (Model != null) {
+                @(Model.Genders.Contains(UserGender.Undefined) ? "checked" : "")
+            } />
+        <label class="form-check-label" for="UndefinedGenderFilter">@UserGender.Undefined</label>
+    </div>
+</div>

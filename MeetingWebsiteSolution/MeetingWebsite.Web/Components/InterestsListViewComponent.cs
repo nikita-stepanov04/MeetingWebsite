@@ -12,7 +12,12 @@ namespace MeetingWebsite.Web.Components
             _interestService = interestService;
         }
 
-        public async Task<IViewComponentResult> InvokeAsync(IEnumerable<int> checkedInterestsIds) =>
-            View(await _interestService.GetAllAsync());
+        public async Task<IViewComponentResult> InvokeAsync(
+            IEnumerable<long>? checkedInterestsIds, string? namePrefix)
+        {
+            ViewBag.NamePrefix = namePrefix;
+            ViewBag.CheckedInterestsIds = checkedInterestsIds;
+            return View(await _interestService.GetAllAsync());
+        }
     }
 }

@@ -5,12 +5,19 @@
 <div class="row" id="interests">
     <label for="interests" class="form-label text-center">Interests</label>
 
-    @{ int i = 0; }
+    @{
+        int i = 0;
+        string prefix = ViewBag.NamePrefix != null ? $"{ViewBag.NamePrefix}." : "";
+        var checkedIds = ViewBag.CheckedInterestsIds as List<long> ?? Enumerable.Empty<long>();
+    }
     @foreach(var interest in Model)
     {              
         <div class="col-5 offset-@(i % 2 == 0 ? "2" : "") form-check">
-            <input class="form-check-input" name="CheckInterestsIds"
-                type="checkbox" value="@interest.InterestId" id="interest-@(i)"/>
+            <input class="form-check-input"
+                name="@(prefix)CheckInterestsIds" type="checkbox"
+                value="@interest.InterestId"
+                id="interest-@(i)"
+                @(checkedIds.Contains(interest.InterestId) ? "checked" : "")/>
             <label class="form-check-label" for="interest-@(i)">
                 @interest.InterestType
             </label>

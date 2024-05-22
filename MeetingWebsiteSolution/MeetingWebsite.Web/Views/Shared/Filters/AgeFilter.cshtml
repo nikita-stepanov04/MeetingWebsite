@@ -1,0 +1,43 @@
+﻿@model FilterInfo
+
+<div class="row">
+    
+    <div class="col-6">
+        <label asp-for="AgeMin" class="form-label">Min Age:</label>
+        <input class="form-control" asp-for="AgeMin" placeholder="Min age"/>
+    </div>
+    <div class="col-6">
+        <label asp-for="AgeMax" class="form-label">Max Age:</label>
+        <input class="form-control" asp-for="AgeMax" placeholder="Max age"/>
+    </div>
+</div>
+
+<script>
+    const minAgeInput = document.getElementById("FilterInfo_AgeMin");
+    const maxAgeInput = document.getElementById("FilterInfo_AgeMax");
+
+    minAgeInput.addEventListener('input', handleMinAgeChange);
+    maxAgeInput.addEventListener('input', handleMaxAgeChange);
+
+    function handleMinAgeChange(event) {
+        const newValue = event.target.value;
+        const maxAge = maxAgeInput.value;
+
+        if (parseInt(newValue) > parseInt(maxAge)) {
+            minAgeInput.value = maxAge;
+        } else {
+            minAgeInput.value = newValue;
+        }
+    }
+
+    function handleMaxAgeChange(event) {
+        const newValue = event.target.value;
+        const minAge = minAgeInput.value;
+
+        if (parseInt(newValue) < parseInt(minAge)) {
+            maxAgeInput.value = minAge;
+        } else {
+            maxAgeInput.value = newValue;
+        }
+    }
+</script>

@@ -17,4 +17,6 @@
     <ProjectReference Include="..\MeetingWebsite.Infrastracture\MeetingWebsite.Infrastracture.csproj" />
   </ItemGroup>
 
+  <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
+
 </Project>
