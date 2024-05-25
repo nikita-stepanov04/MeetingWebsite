@@ -1,14 +1,11 @@
 ﻿using MeetingWebsite.Domain.Interfaces;
+using MeetingWebsite.Domain.Models;
 using MeetingWebsite.Infrastracture.Models.Identity;
 using MeetingWebsite.Web.Models;
 using MeetingWebsite.Web.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.IdentityModel.Tokens;
-using System.IdentityModel.Tokens.Jwt;
-using System.Security.Claims;
-using System.Text;
 
 namespace MeetingWebsite.Web.Controllers
 {
@@ -54,8 +51,8 @@ namespace MeetingWebsite.Web.Controllers
                     IdentityServices.SetTokenCookie(token, Response, expires);
                     return RedirectToAction("Index", "Meeting");
                 }
-                else                
-                    ModelState.AddModelError("Password", "Incorrect login or password");                
+                else
+                    ModelState.AddModelError("Password", "Incorrect login or password");
             }
             return View("Login");
         }
@@ -70,10 +67,10 @@ namespace MeetingWebsite.Web.Controllers
             {
                 if (model.CheckInterestsIds != null)
                     model.UserData.Interests = await _interestService
-                        .FindByIdsAsync(model.CheckInterestsIds);                
-                if (model.Image != null)                
+                        .FindByIdsAsync(model.CheckInterestsIds);
+                if (model.Image != null)
                     model.UserData.Image = await _imageService.CreateFromFormFileAsync(model.Image);
-                
+
                 await _userDataService.CreateAsync(model.UserData);
                 await _userDataService.SaveChangesAsync();
 
@@ -100,7 +97,28 @@ namespace MeetingWebsite.Web.Controllers
             await _singInManager.SignOutAsync();
             Response.Cookies.Delete("Bearer");
             return RedirectToAction("Login");
-        }        
+        }
+
+        [Authorize]
+        [HttpPost("delete")]
+        public async Task<IActionResult> DeleteAccount()
+        {
+            AppUser? appUser = await _userManager.FindByNameAsync(User.Identity?.Name!);
+            if (appUser != null)
+            {
+                User? user = await _userDataService.FindByIdAsync(appUser.UserDataId);
+                if (user != null)
+                {
+                    await _userDataService.DeleteAsync(user);
+                    await _userDataService.SaveChangesAsync();
+                }                
+                await _userManager.DeleteAsync(appUser);
+                await _singInManager.SignOutAsync();
+                Response.Cookies.Delete("Bearer");
+                return RedirectToAction("Login");
+            }
+            return BadRequest();
+        }
 
         private async Task<bool> CheckPassword(LoginViewModel model)
         {
