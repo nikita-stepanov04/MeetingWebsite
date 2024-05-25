@@ -10,6 +10,6 @@ namespace MeetingWebsite.Web.Models.ViewModels
 
         [Required]
         [StringLength(30, MinimumLength = 6, ErrorMessage = "Password must be from 6 to 30 signs long")]
-        public string? Password { get; set; }
+        public virtual string? Password { get; set; }
     }
 }

@@ -17,6 +17,7 @@
                 name="@(prefix)CheckInterestsIds" type="checkbox"
                 value="@interest.InterestId"
                 id="interest-@(i)"
+                disabled="@(ViewBag.Disabled)"
                 @(checkedIds.Contains(interest.InterestId) ? "checked" : "")/>
             <label class="form-check-label" for="interest-@(i)">
                 @interest.InterestType

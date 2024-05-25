@@ -1,0 +1,56 @@
+﻿@model User
+
+@{
+    Layout = "_MeetingLayout";
+    ViewBag.Disabled = true;
+}
+
+<div class="col-sm-10 offset-sm-1 col-12">
+    <div class="main-block h-100">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-6 col-md-5 col-sm-12">
+                    <div class="mb-3">
+                        <partial name="Inputs/FirstnameInput" model="Model" />
+                    </div>
+                    <div class="mb-3">
+                        <partial name="Inputs/SecondnameInput" model="Model"/>
+                    </div>
+                    <div class="mb-3">
+                        <partial name="Inputs/GenderInput" model="Model"/>
+                    </div>
+                    <div class="mb-3">
+                        <partial name="Inputs/BirthdayInput" model="Model"/>
+                    </div>
+                </div>
+                <div class="col-lg-6 col-md-7 col-sm-12">
+                    <div class="mb-3">
+                        <div class="row justify-content-center">
+                            <div class="col-xl-7 col-lg-9 col-md-10 col-sm-12">
+                                <img src=@(Model.ImageLink ?? "/img/placeholder.jpg") id="user-image"
+                                     class="img-fluid object-fit-cover rounded-4 w-100"
+                                     style="max-height: 15rem;" />
+                            </div>
+                        </div>
+                    </div>
+                    <div class="mb-3">
+                        @await Component.InvokeAsync("InterestsList", new {
+                            checkedInterestsIds = Model.Interests?.Select(i => i.InterestId).ToList()
+                        })
+                    </div>
+                </div>                
+            </div>
+            <div class="row mt-4">
+                <div class="col-4">
+                    <partial name="Buttons/AddToFriendsButton"/>
+                </div>
+                <div class="col-4">
+                    <partial name="Buttons/SendMessageButton"/>
+                </div>
+                <div class="col-4">
+                    <partial name="Buttons/GoBackButton" />
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

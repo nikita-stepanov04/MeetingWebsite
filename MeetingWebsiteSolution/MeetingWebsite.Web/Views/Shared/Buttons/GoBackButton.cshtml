@@ -1,0 +1,10 @@
+﻿@{
+    string redirectPath = TempData.Peek("returnPath") as string ?? "";
+}
+
+<div class="d-grid">
+    <a class="btn btn-sm btn-secondary" href="@redirectPath">
+        <i class="fa-solid fa-rotate-left me-1"></i>
+        Go back
+    </a>
+</div>

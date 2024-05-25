@@ -1,0 +1,67 @@
+﻿@model AccountViewModel
+
+@{
+    Layout = "_MeetingLayout";
+}
+
+<partial name="_Validation" />
+<div class="col-md-7 offset-md-1 col-sm-12 offset-sm-0">
+    <div class="main-block h-100">
+        <form asp-action="EditAccount" enctype="multipart/form-data">
+            <input type="hidden" asp-for="UserData.ImageLink" />
+            <div class="container">                
+                <div class="row">                
+                    <div class="col-lg-6 col-md-5 col-sm-12">
+                        <div class="mb-3">
+                            <partial name="Inputs/UsernameInputRemoteValidated" model="Model" />
+                        </div>
+                        <div class="mb-3">
+                            <partial name="Inputs/OldPasswordInput" model="Model" />
+                        </div>
+                        <div class="mb-3">
+                            <partial name="Inputs/NewPasswordInput" model="Model" />
+                        </div>
+                        <div class="mb-3">
+                            <partial name="Inputs/FirstnameInput" for="UserData" />
+                        </div>
+                        <div class="mb-3">
+                            <partial name="Inputs/SecondnameInput" for="UserData" />
+                        </div>
+                        <div class="mb-3">
+                            <partial name="Inputs/BirthdayInput" for="UserData" />
+                        </div>
+                        <div class="mb-3">
+                            <partial name="Inputs/GenderInput" for="UserData" />
+                        </div>
+                    </div>
+                    <div class="col-lg-6 col-md-7 col-sm-12">
+                        <div class="mb-3">
+                            <partial name="Inputs/ImageInput" model="Model"/>
+                        </div>
+                        <div class="mb-3">
+                            @await Component.InvokeAsync("InterestsList", new
+                                {
+                                    checkedInterestsIds = Model.CheckInterestsIds
+                                })
+                        </div>
+                    </div>
+                </div>                    
+                <div class="row mt-4">
+                    <div class="col-4 d-grid">
+                        <button type="submit" class="btn btn-primary btn-sm">Submit</button>
+                    </div>
+                    <div class="col-4">
+                        <partial name="Buttons/DeleteAccountButton" />
+                    </div>                
+                    <div class="col-4">
+                        <partial name="Buttons/GoBackButton" />
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<div class="col-md-3 display-sm-none">
+    <div class="main-block h-100"></div>
+</div>

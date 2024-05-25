@@ -2,7 +2,8 @@
 
 <label asp-for="Gender" class="form-label">Gender</label>
 <span asp-validation-for="Gender" class="validation-error"></span>
-<select class="form-select"
+<select class="@(ViewBag.Disabled ?? false ? "form-control" : "form-select")"
+        disabled="@(ViewBag.Disabled)"
         asp-for="Gender"
         asp-items="new SelectList(Enum.GetNames(typeof(UserGender)))">
     <option value="" disabled selected>Select your gender</option>

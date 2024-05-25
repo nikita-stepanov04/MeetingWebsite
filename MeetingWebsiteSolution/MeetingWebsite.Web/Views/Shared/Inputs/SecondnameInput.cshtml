@@ -2,4 +2,5 @@
 
 <label asp-for="Secondname" class="form-label">Secondname</label>
 <span asp-validation-for="Secondname" class="validation-error"></span>
-<input class="form-control" asp-for="Secondname" placeholder="Enter secondname" />
+<input class="form-control" asp-for="Secondname" placeholder="Enter secondname"
+       disabled="@(ViewBag.Disabled)" />

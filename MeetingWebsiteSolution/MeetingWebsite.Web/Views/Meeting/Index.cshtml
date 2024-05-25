@@ -1,6 +1,7 @@
 ﻿@model MeetingViewModel
 @{
     Layout = "_MeetingLayout";
+    TempData["returnPath"] = Context.Request.Path.ToString() + Context.Request.QueryString;
 }
 
 <form asp-action="Index" method="get" novalidate>
@@ -15,7 +16,7 @@
                     {
                         <div class="col-lg-4 col-md-6 col-sm-6 col-10">
                             <div class="card">
-                                <a asp-action="">
+                                <a asp-action="GetUser" asp-route-id="@user.UserId">
                                     <img src=@(user.ImageLink ?? "/img/placeholder.jpg")
                                          class="card-img-top object-fit-cover"
                                          alt="User photo"
@@ -77,12 +78,15 @@
                     <partial name="Filters/AgeFilter" for="FilterInfo" />
                 </div>
                 <div class="mb-3">
-                    @await Component.InvokeAsync("InterestsList", new {
-                        checkedInterestsIds = Model.FilterInfo?.CheckInterestsIds,namePrefix = "FilterInfo"
+                    @await Component.InvokeAsync("InterestsList", new { checkedInterestsIds =
+                        Model.FilterInfo?.CheckInterestsIds, namePrefix = "FilterInfo"
                     })
                 </div>
                 <div class="d-grid mt-3">
-                    <button class="btn btn-primary" type="submit">Search</button>
+                    <button class="btn btn-primary" type="submit">
+                        <i class="fa-solid fa-magnifying-glass me-1"></i>
+                        Search
+                    </button>
                 </div>
             </div>
         </div>

@@ -1,5 +1,6 @@
 ﻿using MeetingWebsite.Domain.Interfaces;
 using MeetingWebsite.Infrastracture.Models.Identity;
+using MeetingWebsite.Web.Models;
 using MeetingWebsite.Web.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -37,17 +38,6 @@ namespace MeetingWebsite.Web.Controllers
             _imageService = imageService;
         }
 
-        //// action for registration testing
-        //[Authorize]
-        //[HttpGet("index")]
-        //public async Task<IActionResult> Index()
-        //{
-        //    var user = await _userManager.FindByNameAsync(User.Identity.Name);
-        //    user.UserData = await _userDataService.FindByIdAsync(user.UserDataId);
-        //    user.UserData.ImageLink = Url.Action("GetImage", "Image", new { id = user.UserData.ImageId });
-        //    return View(user);
-        //}
-
         [HttpGet("login")]
         public IActionResult Login() => View();
 
@@ -58,30 +48,14 @@ namespace MeetingWebsite.Web.Controllers
             {
                 if (await CheckPassword(model))
                 {
-                    var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_config["JwtSecret"]!));
-                    var credentials = new SigningCredentials(key, SecurityAlgorithms.HmacSha256);
                     var expires = DateTime.UtcNow.AddHours(2);
-
-                    var token = new JwtSecurityToken(
-                        claims: [new Claim(ClaimTypes.Name, model.Username!)],
-                        expires: expires,
-                        signingCredentials: credentials
-                    );
-
-                    var handler = new JwtSecurityTokenHandler();
-                    Response.Cookies.Append("Bearer", handler.WriteToken(token),
-                        new CookieOptions()
-                        {
-                            Expires = expires,
-                            Secure = true,
-                            IsEssential = true
-                        });
+                    string token = IdentityServices.GenerateToken(
+                        model.Username!, _config["JwtSecret"]!, expires);
+                    IdentityServices.SetTokenCookie(token, Response, expires);
                     return RedirectToAction("Index", "Meeting");
                 }
-                else
-                {
-                    ModelState.AddModelError("Password", "Incorrect login or password");
-                }
+                else                
+                    ModelState.AddModelError("Password", "Incorrect login or password");                
             }
             return View("Login");
         }
@@ -90,7 +64,7 @@ namespace MeetingWebsite.Web.Controllers
         public IActionResult Register() => View();
 
         [HttpPost("register")]
-        public async Task<IActionResult> RegisterPost(RegisterViewModel model)
+        public async Task<IActionResult> RegisterPost(AccountViewModel model)
         {
             if (ModelState.IsValid)
             {
@@ -126,7 +100,7 @@ namespace MeetingWebsite.Web.Controllers
             await _singInManager.SignOutAsync();
             Response.Cookies.Delete("Bearer");
             return RedirectToAction("Login");
-        }
+        }        
 
         private async Task<bool> CheckPassword(LoginViewModel model)
         {

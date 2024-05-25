@@ -18,7 +18,12 @@ namespace MeetingWebsite.Web.Controllers
         [HttpGet("username")]
         public async Task<bool> Username(string username)
         {
-            AppUser? user = await _userManager.FindByNameAsync(username);            
+            AppUser? user = await _userManager.FindByNameAsync(username);
+            string? identityName = User.Identity?.Name;
+
+            if (identityName != null && user != null && identityName == user.UserName)
+                return true;
+
             return user == null ? true : false;
         }
     }
