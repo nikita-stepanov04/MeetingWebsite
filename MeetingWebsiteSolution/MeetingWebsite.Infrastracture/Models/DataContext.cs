@@ -11,6 +11,7 @@ namespace MeetingWebsite.Infrastracture.Models
         public DbSet<User> Users => Set<User>();
         public DbSet<Interest> Interests => Set<Interest>();
         public DbSet<Image> Images => Set<Image>();
+        public DbSet<FriendshipRequest> FriendshipRequests => Set<FriendshipRequest>();
 
         protected override void OnModelCreating(ModelBuilder modelBuilder)
         {
@@ -20,12 +21,10 @@ namespace MeetingWebsite.Infrastracture.Models
                 .UsingEntity<Dictionary<string, object>>(
                     "UserFriend",
                     u => u
-                        .HasOne<User>()
-                        .WithMany()
+                        .HasOne<User>().WithMany()
                         .HasForeignKey("UserId"),
                     f => f
-                        .HasOne<User>()
-                        .WithMany()
+                        .HasOne<User>().WithMany()
                         .HasForeignKey("FriendId"));
 
             modelBuilder.Entity<User>()
@@ -34,16 +33,24 @@ namespace MeetingWebsite.Infrastracture.Models
                 .UsingEntity<Dictionary<string, object>>(
                     "UserInterest",
                     j => j
-                        .HasOne<Interest>()
-                        .WithMany()
+                        .HasOne<Interest>().WithMany()
                         .HasForeignKey("InterestId"),
                     j => j
-                        .HasOne<User>()
-                        .WithMany()
+                        .HasOne<User>().WithMany()
                         .HasForeignKey("UserId"));
 
             modelBuilder.Entity<User>()
                 .Ignore(u => u.ImageLink);
+
+            modelBuilder.Entity<FriendshipRequest>()
+                .HasOne(fr => fr.Sender).WithOne()
+                .HasForeignKey<FriendshipRequest>(fr => fr.SenderId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<FriendshipRequest>()
+                .HasOne(fr => fr.Receiver).WithOne()
+                .HasForeignKey<FriendshipRequest>(fr => fr.ReceiverId)
+                .OnDelete(DeleteBehavior.Restrict);
         }
     }
 }

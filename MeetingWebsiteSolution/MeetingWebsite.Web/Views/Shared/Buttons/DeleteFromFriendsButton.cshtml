@@ -1,0 +1,10 @@
+﻿@model User
+
+<form asp-action="DeleteFromFriends">
+    <input type="hidden" name="friendId" asp-for="UserId" />
+    <div class="d-grid">
+        <button type="submit" class="btn btn-sm btn-danger">
+            <i class="fa-solid fa-user-minus"></i>
+        </button>
+    </div>
+</form>

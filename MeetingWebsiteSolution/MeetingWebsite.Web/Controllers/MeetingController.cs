@@ -2,7 +2,6 @@
 using MeetingWebsite.Domain.Models;
 using MeetingWebsite.Infrastracture.Models.Identity;
 using MeetingWebsite.Web.Helpers;
-using MeetingWebsite.Web.Models;
 using MeetingWebsite.Web.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
@@ -12,29 +11,22 @@ namespace MeetingWebsite.Web.Controllers
 {
     [Authorize]
     [Route("/")]
-    public class MeetingController : Controller
+    public class MeetingController : ControllerWithAlert
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly IUserService _userService;
-        private readonly IInterestService _interestService;
-        private readonly IImageService _imageService;
-        private readonly SignInManager<AppUser> _singInManager;
-        private readonly IConfiguration _config;
+        private readonly IFriendshipService _friendshipService;
 
         public MeetingController(UserManager<AppUser> userManager,
             IUserService userService,
-            IInterestService interestService,
-            IImageService imageService,
-            SignInManager<AppUser> singInManager,
-            IConfiguration config)
+            IFriendshipService friendshipService)
         {
             _userManager = userManager;
             _userService = userService;
-            _interestService = interestService;
-            _imageService = imageService;
-            _singInManager = singInManager;
-            _config = config;
+            _friendshipService = friendshipService;
         }
+
+        public Task<AppUser> AppUserTask => _userManager.FindByNameAsync(User.Identity?.Name!)!;
 
         [HttpGet()]
         [HttpGet("page/{page:int?}")]
@@ -42,11 +34,22 @@ namespace MeetingWebsite.Web.Controllers
         {
             model = model ?? new();
             model.PagInfo.CurrentPage = page ?? model.PagInfo.CurrentPage;
-            model.Users = await _userService.FindUsersByFiltersAndPagingInfo(
-                model.FilterInfo, model.PagInfo);
-            foreach (User user in model.Users)
+
+            User? user = await _userService.FindByIdAsync((await AppUserTask).UserDataId);
+            if (user != null)
             {
-                user.ImageLink = Url.GetImageUrl(user);
+                model.Users = await _userService
+                    .FindUsersByFiltersAndPagingInfo(model.FilterInfo, model.PagInfo, [user]);
+                foreach (User modelUser in model.Users)
+                {
+                    modelUser.ImageLink = Url.GetImageUrl(modelUser);
+                }
+                model.FriendshipRequestSendersIds = (await _friendshipService
+                    .GetFriendshipRequestsAsync(user)).Select(fr => fr.SenderId).ToHashSet();
+                model.SentFriendshipRequestsReceiversIds = (await _friendshipService
+                    .GetSentRequestsAsync(user)).Select(fr => fr.ReceiverId).ToHashSet();
+                model.FriendsIds = (user.Friends ?? Enumerable.Empty<User>())
+                    .Select(u => u.UserId).ToHashSet();
             }
             return View(model);
         }
@@ -63,92 +66,54 @@ namespace MeetingWebsite.Web.Controllers
             return NotFound();
         }
 
-        [HttpGet("my-account")]
-        public async Task<IActionResult> MyAccount()
+        [HttpPost("send-friendship-request")]
+        public async Task<IActionResult> SendFriendshipRequest(long receiverId)
         {
-            var appUser = await _userManager.FindByNameAsync(User.Identity?.Name!);
-            if (appUser != null)
-            {
-                appUser.UserData = await _userService.FindByIdAsync(appUser.UserDataId);
-                if (appUser.UserData != null)
-                {
-                    appUser.UserData.ImageLink = Url.GetImageUrl(appUser.UserData);
-                    return View(new AccountViewModel()
-                    {
-                        Username = appUser.UserName,
-                        UserData = appUser.UserData,
-                        CheckInterestsIds = appUser.UserData.Interests?
-                            .Select(i => i.InterestId).ToList()
-                    });
-                }
-            }
-            return NotFound();
+            bool result = await _friendshipService.SendFriendshipRequestAsync(
+                (await AppUserTask).UserDataId, receiverId);
+            ConditionAlert(result,
+                "Frienship request has been sent", "Faild to send friendship request");
+            return Redirect(TempData["returnPath"] as string ?? "");
         }
 
-        [HttpPost("my-account")]
-        public async Task<IActionResult> EditAccount(AccountViewModel model)
+        [HttpPost("accept-friendship-request")]
+        public async Task<IActionResult> AcceptFriendshipRequest(long senderId)
         {
-            ModelState.Remove("Password");
-            if (ModelState.IsValid)
-            {
-                AppUser? appUser = await _userManager.FindByNameAsync(User.Identity?.Name!);
-                if (appUser != null)
-                {
-                    User? user = await _userService.FindByIdAsync(appUser.UserDataId);
-                    if (user != null)
-                    {
-                        user.Firstname = model.UserData.Firstname;
-                        user.Secondname = model.UserData.Secondname;
-                        user.Gender = model.UserData.Gender;
-                        user.Birthday = model.UserData.Birthday;
+            bool result = await _friendshipService.AcceptFriendshipRequestAsync(
+                senderId, (await AppUserTask).UserDataId);
+            ConditionAlert(result,
+                "Frienship request has been accepted", "Faild to accept friendship request");
+            return Redirect(TempData["returnPath"] as string ?? "");
+        }
 
-                        if (model.CheckInterestsIds != null)
-                            user.Interests = await _interestService
-                                .FindByIdsAsync(model.CheckInterestsIds);
-                        if (model.Image != null)
-                            user.Image = await _imageService.CreateFromFormFileAsync(model.Image);
-                        await _userService.UpdateAsync(user);
-                        await _userService.SaveChangesAsync();
-                    }
-                    if (model.NewPassword != null && model.OldPassword != null)
-                    {                       
-                        var result = await _userManager.ChangePasswordAsync(appUser,
-                            model.OldPassword, model.NewPassword);
-                        if (!result.Succeeded)
-                        {
-                            ModelState.AddModelError("NewPassword", "Failed to update password");
-                            return View("MyAccount", model);
-                        }                        
-                    }
-                    if (model.Username != appUser.UserName)
-                    {
-                        AppUser? checkName = await _userManager.FindByNameAsync(model.Username!);
-                        if (checkName == null)
-                        {
-                            appUser.UserName = model.Username;
-                            var result = await _userManager.UpdateAsync(appUser); 
-                            if (!result.Succeeded)
-                            {
-                                ModelState.AddModelError("Username", "Failed to update username");
-                                return View("MyAccount", model);
-                            }
+        [HttpPost("reject-friendship-request")]
+        public async Task<IActionResult> RejectFriendshipRequest(long senderId)
+        {
+            bool result = await _friendshipService.RejectFriendshipRequestAsync(
+                 senderId, (await AppUserTask).UserDataId);
+            ConditionAlert(result,
+                "Frienship request has been rejected", "Faild to reject friendship request");
+            return Redirect(TempData["returnPath"] as string ?? "");
+        }
 
-                            var expires = DateTime.UtcNow.AddHours(2);
-                            string token = IdentityServices.GenerateToken(
-                                appUser.UserName!, _config["JwtSecret"]!, expires);
-                            IdentityServices.SetTokenCookie(token, Response, expires);
-                        }    
-                        else
-                        {
-                            ModelState.AddModelError("Username", "Username is alredy taken");
-                            return View("MyAccount", model);
-                        }                            
-                    }                    
-                    return RedirectToAction("MyAccount");
-                }
-                ModelState.AddModelError("Validation", "Failed to authenticate user");
-            }            
-            return View("MyAccount", model);
+        [HttpPost("cancel-friendship-request")]
+        public async Task<IActionResult> CancelFriendshipRequest(long receiverId)
+        {
+            bool result = await _friendshipService.RejectFriendshipRequestAsync(
+                (await AppUserTask).UserDataId, receiverId);
+            ConditionAlert(result,
+                "Frienship request has been canceled", "Your request has already been accepted");
+            return Redirect(TempData["returnPath"] as string ?? "");
+        }
+
+        [HttpPost("delete-from-friends")]
+        public async Task<IActionResult> DeleteFromFriends(long friendId)
+        {
+            bool result = await _friendshipService.DeleteFromFriendsAsync(
+                (await AppUserTask).UserDataId, friendId);
+            ConditionAlert(result,
+                "Deletion from friends succeded", "Faild to delete from friends");
+            return Redirect(TempData["returnPath"] as string ?? "");
         }
     }
 }

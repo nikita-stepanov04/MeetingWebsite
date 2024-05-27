@@ -1,0 +1,22 @@
+﻿@model User
+
+<div class="d-flex">
+    <form asp-action="AcceptFriendshipRequest">
+        <input type="hidden" name="senderId" asp-for="UserId" />
+        <div class="d-grid">
+            <button type="submit" class="btn btn-link link-success link-underline link-underline-opacity-0 ps-2 pe-1 pt-0">
+                <i class="fa-regular fa-circle-check fa-xl pe-1"></i>
+                Accept
+            </button>
+        </div>
+    </form>
+    <form asp-action="RejectFriendshipRequest">
+        <input type="hidden" name="senderId" asp-for="UserId" />
+        <div class="d-grid">
+            <button type="submit" class="btn btn-link link-danger link-underline link-underline-opacity-0 pt-0">
+                <i class="fa-regular fa-circle-xmark fa-xl pe-1"></i>
+                Reject
+            </button>
+        </div>
+    </form>
+</div>

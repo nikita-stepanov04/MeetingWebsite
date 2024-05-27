@@ -4,72 +4,89 @@
     TempData["returnPath"] = Context.Request.Path.ToString() + Context.Request.QueryString;
 }
 
-<form asp-action="Index" method="get" novalidate>
-    <div class="row">
-        <div class="col-md-8 col-sm-12">
-            <div class="main-block h-100">
-                <div class="row justify-content-center justify-content-sm-start gy-2 gx-2">
+<div class="row">
+    <div class="col-md-8 col-sm-12">
+        <div class="main-block h-100">
+            <div class="row justify-content-center justify-content-sm-start gy-2 gx-2">
 
-                    @* card *@
+                @* card *@
 
-                    @foreach (User user in Model.Users)
-                    {
-                        <div class="col-lg-4 col-md-6 col-sm-6 col-10">
-                            <div class="card">
-                                <a asp-action="GetUser" asp-route-id="@user.UserId">
-                                    <img src=@(user.ImageLink ?? "/img/placeholder.jpg")
-                                         class="card-img-top object-fit-cover"
-                                         alt="User photo"
-                                         style="height: 13rem;" />
-                                </a>
-                                <div class="card-body">
-                                    <div class="d-flex justify-content-between">
-                                        <h5 class="card-title overflow-ellipsis">
-                                            @user.Secondname @user.Firstname
-                                        </h5>
-                                        <div class="text-nowrap text-body-secondary">
-                                            @user.Birthday.GetFullYears() y.o
-                                        </div>
+                @foreach (User user in Model.Users)
+                {
+                    <div class="col-lg-4 col-md-6 col-sm-6 col-10">
+                        <div class="card">
+                            <a asp-action="GetUser" asp-route-id="@user.UserId">
+                                <img src=@(user.ImageLink ?? "/img/placeholder.jpg")
+                                        class="card-img-top object-fit-cover"
+                                        alt="User photo"
+                                        style="height: 13rem;" />
+                            </a>
+                            <div class="card-body">
+                                <div class="d-flex justify-content-between">
+                                    <h5 class="card-title overflow-ellipsis">
+                                        @user.Secondname @user.Firstname
+                                    </h5>
+                                    <div class="text-nowrap text-body-secondary">
+                                        @user.Birthday.GetFullYears() y.o
                                     </div>
-                                    <div class="text-body-secondary">
-                                        @(user.Gender == UserGender.Undefined
-                                            ? $"{user.Gender} gender" : user.Gender)
-                                    </div>
-                                    <div class="d-grid mt-2" style="margin: -0.5rem;">
-                                        <button class="btn btn-sm btn-primary">
-                                            <i class="fa-solid fa-user-plus"></i>
-                                        </button>
-                                    </div>
+                                </div>
+                                <div class="text-body-secondary">
+                                    @(user.Gender == UserGender.Undefined
+                                        ? $"{user.Gender} gender" : user.Gender)
+                                </div>
+                                <div class="d-grid mt-2" style="margin: -0.5rem;">
+                                    @if (!Model.FriendsIds.Contains(user.UserId))
+                                    {
+                                        if (Model.SentFriendshipRequestsReceiversIds.Contains(user.UserId))
+                                        {
+                                            <partial name="Buttons/CancelFriendshipRequestButton" model="@user" />
+                                        }
+                                        else if (Model.FriendshipRequestSendersIds.Contains(user.UserId))
+                                        {
+                                            <partial name="Buttons/AcceptRejectFriendshipRequestButton" model="@user" />
+                                        }
+                                        else
+                                        {
+                                            <partial name="Buttons/AddToFriendsButton" model="@user" />
+                                        }
+                                    } 
+                                    else 
+                                    {
+                                        <partial name="Buttons/DeleteFromFriendsButton" model="@user" />
+                                    }
                                 </div>
                             </div>
                         </div>
-                    }
+                    </div>
+                }
 
-                    @* pagination *@
+                @* pagination *@
 
-                    @if (Model.PagInfo.TotalPages > 1)
-                    {
-                        <div class="d-flex justify-content-center mt-4">
-                            <ul class="pagination pagination-md">
-                                @for (int i = 1; i <= Model.PagInfo.TotalPages; i++)
-                                {
-                                    <li class="page-item @(i == Model.PagInfo.CurrentPage ? "active" : "")">
-                                        @if (i == Model.PagInfo.CurrentPage) {
-                                            <span class="page-link">@i</span>
-                                        } else {
-                                            <button asp-route-page="@i" class="page-link" type="submit">@i</button>                                            
-                                        }
-                                    </li>
-                                }
-                            </ul>
-                        </div>
-                    }
-                </div>
+                @if (Model.PagInfo.TotalPages > 1)
+                {
+                    <div class="d-flex justify-content-center mt-4">
+                        <ul class="pagination pagination-md">
+                            @for (int i = 1; i <= Model.PagInfo.TotalPages; i++)
+                            {
+                                <li class="page-item @(i == Model.PagInfo.CurrentPage ? "active" : "")">
+                                    @if (i == Model.PagInfo.CurrentPage) {
+                                        <span class="page-link">@i</span>
+                                    } else {
+                                        <button asp-route-page="@i" class="page-link" 
+                                            form="MeetingForm">@i</button>                                            
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    </div>
+                }
             </div>
         </div>
+    </div>
 
-        <div class="col-md-4 d-none d-md-flex">
-            <div class="main-block">
+    <div class="col-md-4 d-none d-md-flex">
+        <div class="main-block">
+            <form asp-action="Index" method="get" novalidate id="MeetingForm">
                 <h5 class="text-center mb-3">Choose parameters:</h5>
                 <div class="mb-3">
                     <partial name="Filters/GenderFilter" for="FilterInfo" />
@@ -88,7 +105,7 @@
                         Search
                     </button>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
-</form>
+</div>

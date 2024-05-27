@@ -31,9 +31,12 @@ namespace MeetingWebsite.Application.Services
             _userRepository.SaveChangesAsync();
 
         public async Task<IEnumerable<User>> FindUsersByFiltersAndPagingInfo(
-            FilterInfo? filterInfo, PagingInfo pagingInfo)
+            FilterInfo? filterInfo, PagingInfo pagingInfo, IEnumerable<User> except)
         {
-            var users = _userRepository.GetQueryable();
+            var exceptIds = except.Select(u => u.UserId);
+            var users = _userRepository.GetQueryable()
+                .Where(u => !exceptIds.Contains(u.UserId));
+
             if (filterInfo != null)
             {
                 users = users

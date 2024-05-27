@@ -22,6 +22,31 @@ namespace MeetingWebsite.Infrastracture.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("MeetingWebsite.Domain.Models.FriendshipRequest", b =>
+                {
+                    b.Property<long>("RequestId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("RequestId"));
+
+                    b.Property<long>("ReceiverId")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("SenderId")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("RequestId");
+
+                    b.HasIndex("ReceiverId")
+                        .IsUnique();
+
+                    b.HasIndex("SenderId")
+                        .IsUnique();
+
+                    b.ToTable("FriendshipRequests");
+                });
+
             modelBuilder.Entity("MeetingWebsite.Domain.Models.Image", b =>
                 {
                     b.Property<long>("ImageId")
@@ -124,6 +149,25 @@ namespace MeetingWebsite.Infrastracture.Migrations
                     b.HasIndex("UserId");
 
                     b.ToTable("UserInterest");
+                });
+
+            modelBuilder.Entity("MeetingWebsite.Domain.Models.FriendshipRequest", b =>
+                {
+                    b.HasOne("MeetingWebsite.Domain.Models.User", "Receiver")
+                        .WithOne()
+                        .HasForeignKey("MeetingWebsite.Domain.Models.FriendshipRequest", "ReceiverId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MeetingWebsite.Domain.Models.User", "Sender")
+                        .WithOne()
+                        .HasForeignKey("MeetingWebsite.Domain.Models.FriendshipRequest", "SenderId")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("Receiver");
+
+                    b.Navigation("Sender");
                 });
 
             modelBuilder.Entity("MeetingWebsite.Domain.Models.User", b =>

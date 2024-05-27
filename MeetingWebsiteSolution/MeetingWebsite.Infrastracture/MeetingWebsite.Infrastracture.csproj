@@ -24,8 +24,4 @@
     <ProjectReference Include="..\MeetingWebsite.Application\MeetingWebsite.Application.csproj" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="Migrations\" />
-  </ItemGroup>
-
 </Project>

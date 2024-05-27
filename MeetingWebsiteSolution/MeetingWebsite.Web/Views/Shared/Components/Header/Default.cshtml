@@ -1,5 +1,6 @@
-﻿@model string?
+﻿@model HeaderViewModel
 
+<partial name="_Alert" />
 <header>
     <nav class="navbar bg-body-tertiary">
         <div class="container-xxl container-fluid">
@@ -14,12 +15,12 @@
                         Logout
                     </button>
                 </form>
-                <a asp-action="MyAccount" class="position-relative">
-                    <img src=@(Model ?? "/img/avatar.png") width="40" height="40" 
+                <a asp-controller="Account" asp-action="MyAccount" class="position-relative">
+                    <img src=@(Model.ImageUrl ?? "/img/avatar.png") width="40" height="40" 
                         class="d-inline-block align-text-top object-fit-cover rounded-5 ms-3" />
                     <span class="position-absolute translate-middle badge rounded-pill bg-danger"                          
                           style="top: 20%; left: 85%;">
-                        0 @* TODO: User friendship requests count *@
+                        @Model.FriendshipRequestsNumber
                     </span>
                 </a>
             </div>

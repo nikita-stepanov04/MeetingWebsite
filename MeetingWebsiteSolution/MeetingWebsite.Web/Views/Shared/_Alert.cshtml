@@ -1,0 +1,13 @@
+﻿<div id="liveAlertPlaceholder" class="live-alert-container">
+    <div class="container-fluid">
+        <div class="row justify-content-center">
+            <div class="col-6 mt-3">
+                <div id="alertBox" class="alert alert-dismissible alert-@(TempData["AlertType"] as string)
+                        role="alert">
+                    <div id="alertMessage">@(TempData["AlertMessage"] as string)</div>
+                    <button class="btn-close" aria-label="Close" onclick="hideAlert()"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

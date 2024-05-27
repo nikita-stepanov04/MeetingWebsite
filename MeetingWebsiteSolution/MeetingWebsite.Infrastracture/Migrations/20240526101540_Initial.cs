@@ -61,6 +61,32 @@ namespace MeetingWebsite.Infrastracture.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "FriendshipRequests",
+                columns: table => new
+                {
+                    RequestId = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    SenderId = table.Column<long>(type: "bigint", nullable: false),
+                    ReceiverId = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_FriendshipRequests", x => x.RequestId);
+                    table.ForeignKey(
+                        name: "FK_FriendshipRequests_Users_ReceiverId",
+                        column: x => x.ReceiverId,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_FriendshipRequests_Users_SenderId",
+                        column: x => x.SenderId,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "UserFriend",
                 columns: table => new
                 {
@@ -108,6 +134,18 @@ namespace MeetingWebsite.Infrastracture.Migrations
                 });
 
             migrationBuilder.CreateIndex(
+                name: "IX_FriendshipRequests_ReceiverId",
+                table: "FriendshipRequests",
+                column: "ReceiverId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
+                name: "IX_FriendshipRequests_SenderId",
+                table: "FriendshipRequests",
+                column: "SenderId",
+                unique: true);
+
+            migrationBuilder.CreateIndex(
                 name: "IX_UserFriend_UserId",
                 table: "UserFriend",
                 column: "UserId");
@@ -126,6 +164,9 @@ namespace MeetingWebsite.Infrastracture.Migrations
         /// <inheritdoc />
         protected override void Down(MigrationBuilder migrationBuilder)
         {
+            migrationBuilder.DropTable(
+                name: "FriendshipRequests");
+
             migrationBuilder.DropTable(
                 name: "UserFriend");
 
