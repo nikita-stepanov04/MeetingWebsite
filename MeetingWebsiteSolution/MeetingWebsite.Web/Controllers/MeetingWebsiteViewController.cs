@@ -1,8 +1,10 @@
-﻿using Microsoft.AspNetCore.Mvc;
+﻿using MeetingWebsite.Web.Filters;
+using Microsoft.AspNetCore.Mvc;
 
 namespace MeetingWebsite.Web.Controllers
 {
-    public class ControllerWithAlert : Controller
+    [ReturnPathFilter]
+    public class MeetingWebsiteViewController : Controller
     {
         public void AlertDanger(string message) => AlertBase("danger", message);
         public void AlertSuccess(string message) => AlertBase("success", message);

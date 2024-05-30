@@ -12,7 +12,7 @@ namespace MeetingWebsite.Web.Controllers
 {
     [Route("/account")]
     [AutoValidateAntiforgeryToken]
-    public class AccountController : Controller
+    public class AccountController : MeetingWebsiteViewController
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly SignInManager<AppUser> _singInManager;
@@ -20,13 +20,15 @@ namespace MeetingWebsite.Web.Controllers
         private readonly IInterestService _interestService;
         private readonly IImageService _imageService;
         private readonly IConfiguration _config;
+        private readonly IFriendshipService _friendshipService;
 
         public AccountController(UserManager<AppUser> userManager,
             SignInManager<AppUser> singInManager,
             IConfiguration config,
             IUserService userService,
             IInterestService interestService,
-            IImageService imageService)
+            IImageService imageService,
+            IFriendshipService friendshipService)
         {
             _userManager = userManager;
             _singInManager = singInManager;
@@ -34,6 +36,7 @@ namespace MeetingWebsite.Web.Controllers
             _userDataService = userService;
             _interestService = interestService;
             _imageService = imageService;
+            _friendshipService = friendshipService;
         }
 
         [HttpGet("login")]
@@ -91,6 +94,7 @@ namespace MeetingWebsite.Web.Controllers
             return View("Register");
         }
 
+        [Authorize]
         [HttpGet("/my-account")]
         public async Task<IActionResult> MyAccount()
         {
@@ -101,6 +105,13 @@ namespace MeetingWebsite.Web.Controllers
                 if (appUser.UserData != null)
                 {
                     appUser.UserData.ImageLink = Url.GetImageUrl(appUser.UserData);
+                    var requests = await _friendshipService
+                        .GetFriendshipRequestsAsync(appUser.UserData);
+                    ViewBag.Senders = requests.Select(r => r.Sender);
+                    foreach (var request in requests)
+                    {
+                        request.Sender.ImageLink = Url.GetImageUrl(request.Sender);
+                    }
                     return View(new AccountViewModel()
                     {
                         Username = appUser.UserName,
@@ -113,6 +124,7 @@ namespace MeetingWebsite.Web.Controllers
             return NotFound();
         }
 
+        [Authorize]
         [HttpPost("/my-account")]
         public async Task<IActionResult> EditAccount(AccountViewModel model)
         {

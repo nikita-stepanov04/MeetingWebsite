@@ -2,10 +2,11 @@
 
 @{
     Layout = "_MeetingLayout";
+    ReturnPathHelper.PushNewPage(TempData, Context);
 }
 
 <partial name="_Validation" />
-<div class="col-md-7 offset-md-1 col-sm-12 offset-sm-0">
+<div class="col-md-8 col-sm-12 offset-sm-0">
     <div class="main-block h-100">        
         <div class="container">
             <form asp-action="EditAccount" id="editForm" enctype="multipart/form-data">
@@ -64,6 +65,37 @@
     </div>
 </div>
 
-<div class="col-md-3 display-sm-none">
-    <div class="main-block h-100"></div>
+<div class="col-md-4 display-sm-none">
+    <div class="main-block h-100 px-2">
+        <div class="overflow-y-auto" style="max-height: 40rem;">
+            <h5 class="text-center mb-4">Friendship requests</h5>
+            <div class="container-fluid">
+                @foreach(User sender in (ViewBag.Senders))
+                {
+                    <div class="row main-block pt-3 pb-1 px-0 mb-3" style="background-color: #ebeced">
+                        <div class="col overflow-auto">
+                            <a asp-controller="Meeting" asp-action="GetUser"
+                                    asp-route-id="@sender.UserId" class="navbar-brand d-flex">
+                                <img src=@(sender.ImageLink ?? "/img/placeholder.jpg")
+                                     width="40" height="40"
+                                     class="d-inline-block align-text-top object-fit-cover rounded-circle mt-2">
+                                <div class="d-grid">
+                                    <div class="ms-2 fs-5 overflow-ellipsis">
+                                        @sender.Firstname @sender.Secondname
+                                    </div>
+                                    <div class="ms-2 fs-6 text-body-secondary">
+                                        @sender.Birthday.GetFullYears() y.o
+                                    </div>
+                                </div>
+                            </a>
+                        </div>
+                        <div class="col-auto d-flex mt-2 px-0">
+                            @{ ViewBag.SignatureRequeired = false; }
+                            <partial name="Buttons/AcceptRejectFriendshipRequestButton" model="@sender" />
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
 </div>

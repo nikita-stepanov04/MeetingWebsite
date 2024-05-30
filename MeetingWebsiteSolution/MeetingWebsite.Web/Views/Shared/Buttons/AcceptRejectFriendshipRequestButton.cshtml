@@ -1,21 +1,25 @@
 ﻿@model User
 
+@{
+    bool signature = ViewBag.SignatureRequeired ?? true; 
+}
+
 <div class="d-flex">
-    <form asp-action="AcceptFriendshipRequest">
+    <form asp-controller="Meeting" asp-action="AcceptFriendshipRequest">
         <input type="hidden" name="senderId" asp-for="UserId" />
         <div class="d-grid">
             <button type="submit" class="btn btn-link link-success link-underline link-underline-opacity-0 ps-2 pe-1 pt-0">
-                <i class="fa-regular fa-circle-check fa-xl pe-1"></i>
-                Accept
+                <i class="fa-solid fa-circle-check @(signature ? "fa-xl pe-1" : "fa-2xl") "></i>
+                @(signature ? "Accept" : "")
             </button>
         </div>
     </form>
-    <form asp-action="RejectFriendshipRequest">
+    <form asp-controller="Meeting" asp-action="RejectFriendshipRequest">
         <input type="hidden" name="senderId" asp-for="UserId" />
         <div class="d-grid">
             <button type="submit" class="btn btn-link link-danger link-underline link-underline-opacity-0 pt-0">
-                <i class="fa-regular fa-circle-xmark fa-xl pe-1"></i>
-                Reject
+                <i class="fa-solid fa-circle-xmark @(signature ? "fa-xl" : "fa-2xl")"></i>
+                @(signature ? "Reject" : "")
             </button>
         </div>
     </form>

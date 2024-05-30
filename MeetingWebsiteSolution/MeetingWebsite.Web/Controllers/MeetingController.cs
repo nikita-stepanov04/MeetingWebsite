@@ -11,7 +11,7 @@ namespace MeetingWebsite.Web.Controllers
 {
     [Authorize]
     [Route("/")]
-    public class MeetingController : ControllerWithAlert
+    public class MeetingController : MeetingWebsiteViewController
     {
         private readonly UserManager<AppUser> _userManager;
         private readonly IUserService _userService;
@@ -73,7 +73,7 @@ namespace MeetingWebsite.Web.Controllers
                 (await AppUserTask).UserDataId, receiverId);
             ConditionAlert(result,
                 "Frienship request has been sent", "Faild to send friendship request");
-            return Redirect(TempData["returnPath"] as string ?? "");
+            return Redirect(ReturnPathHelper.GetReturnPath(TempData, HttpContext));
         }
 
         [HttpPost("accept-friendship-request")]
@@ -83,7 +83,7 @@ namespace MeetingWebsite.Web.Controllers
                 senderId, (await AppUserTask).UserDataId);
             ConditionAlert(result,
                 "Frienship request has been accepted", "Faild to accept friendship request");
-            return Redirect(TempData["returnPath"] as string ?? "");
+            return Redirect(ReturnPathHelper.GetReturnPath(TempData, HttpContext));
         }
 
         [HttpPost("reject-friendship-request")]
@@ -93,7 +93,7 @@ namespace MeetingWebsite.Web.Controllers
                  senderId, (await AppUserTask).UserDataId);
             ConditionAlert(result,
                 "Frienship request has been rejected", "Faild to reject friendship request");
-            return Redirect(TempData["returnPath"] as string ?? "");
+            return Redirect(ReturnPathHelper.GetReturnPath(TempData, HttpContext));
         }
 
         [HttpPost("cancel-friendship-request")]
@@ -103,7 +103,7 @@ namespace MeetingWebsite.Web.Controllers
                 (await AppUserTask).UserDataId, receiverId);
             ConditionAlert(result,
                 "Frienship request has been canceled", "Your request has already been accepted");
-            return Redirect(TempData["returnPath"] as string ?? "");
+            return Redirect(ReturnPathHelper.GetReturnPath(TempData, HttpContext));
         }
 
         [HttpPost("delete-from-friends")]
@@ -113,7 +113,7 @@ namespace MeetingWebsite.Web.Controllers
                 (await AppUserTask).UserDataId, friendId);
             ConditionAlert(result,
                 "Deletion from friends succeded", "Faild to delete from friends");
-            return Redirect(TempData["returnPath"] as string ?? "");
+            return Redirect(ReturnPathHelper.GetReturnPath(TempData, HttpContext));
         }
     }
 }

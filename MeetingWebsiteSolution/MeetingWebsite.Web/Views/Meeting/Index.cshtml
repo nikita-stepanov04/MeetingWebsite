@@ -1,7 +1,7 @@
 ﻿@model MeetingViewModel
 @{
     Layout = "_MeetingLayout";
-    TempData["returnPath"] = Context.Request.Path.ToString() + Context.Request.QueryString;
+    ReturnPathHelper.PushNewPage(TempData, Context);
 }
 
 <div class="row">
