@@ -70,13 +70,13 @@
         <div class="overflow-y-auto" style="max-height: 40rem;">
             <h5 class="text-center mb-4">Friendship requests</h5>
             <div class="container-fluid">
-                @foreach(User sender in (ViewBag.Senders))
+                @foreach(User sender in Model.Senders ?? [])
                 {
                     <div class="row main-block pt-3 pb-1 px-0 mb-3" style="background-color: #ebeced">
                         <div class="col overflow-auto">
                             <a asp-controller="Meeting" asp-action="GetUser"
                                     asp-route-id="@sender.UserId" class="navbar-brand d-flex">
-                                <img src=@(sender.ImageLink ?? "/img/placeholder.jpg")
+                                <img src=@(sender.ImageLink ?? "/img/avatar.png")
                                      width="40" height="40"
                                      class="d-inline-block align-text-top object-fit-cover rounded-circle mt-2">
                                 <div class="d-grid">

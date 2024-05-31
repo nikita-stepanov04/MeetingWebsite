@@ -1,6 +1,7 @@
 ﻿using MeetingWebsite.Domain.Interfaces;
 using MeetingWebsite.Domain.Models;
 using MeetingWebsite.Infrastracture.Models.Identity;
+using MeetingWebsite.Web.Filters;
 using MeetingWebsite.Web.Helpers;
 using MeetingWebsite.Web.Models;
 using MeetingWebsite.Web.Models.ViewModels;
@@ -104,18 +105,13 @@ namespace MeetingWebsite.Web.Controllers
                 appUser.UserData = await _userDataService.FindByIdAsync(appUser.UserDataId);
                 if (appUser.UserData != null)
                 {
-                    appUser.UserData.ImageLink = Url.GetImageUrl(appUser.UserData);
                     var requests = await _friendshipService
                         .GetFriendshipRequestsAsync(appUser.UserData);
-                    ViewBag.Senders = requests.Select(r => r.Sender);
-                    foreach (var request in requests)
-                    {
-                        request.Sender.ImageLink = Url.GetImageUrl(request.Sender);
-                    }
                     return View(new AccountViewModel()
                     {
                         Username = appUser.UserName,
                         UserData = appUser.UserData,
+                        Senders = requests.Select(r => r.Sender),
                         CheckInterestsIds = appUser.UserData.Interests?
                             .Select(i => i.InterestId).ToList()
                     });

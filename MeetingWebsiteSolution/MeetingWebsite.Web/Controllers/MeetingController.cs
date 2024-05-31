@@ -40,10 +40,6 @@ namespace MeetingWebsite.Web.Controllers
             {
                 model.Users = await _userService
                     .FindUsersByFiltersAndPagingInfo(model.FilterInfo, model.PagInfo, [user]);
-                foreach (User modelUser in model.Users)
-                {
-                    modelUser.ImageLink = Url.GetImageUrl(modelUser);
-                }
                 model.FriendshipRequestSendersIds = (await _friendshipService
                     .GetFriendshipRequestsAsync(user)).Select(fr => fr.SenderId).ToHashSet();
                 model.SentFriendshipRequestsReceiversIds = (await _friendshipService
@@ -60,7 +56,6 @@ namespace MeetingWebsite.Web.Controllers
             var user = await _userService.FindByIdAsync(id);
             if (user != null)
             {
-                user.ImageLink = Url.GetImageUrl(user);
                 return View("User", user);
             }
             return NotFound();

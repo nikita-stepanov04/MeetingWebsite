@@ -4,6 +4,7 @@ using Microsoft.AspNetCore.Mvc;
 namespace MeetingWebsite.Web.Controllers
 {
     [ReturnPathFilter]
+    [UserImageLinkFilter]
     public class MeetingWebsiteViewController : Controller
     {
         public void AlertDanger(string message) => AlertBase("danger", message);

@@ -18,6 +18,8 @@ namespace MeetingWebsite.Web.Models.ViewModels
         [Required]
         public virtual User UserData { get; set; } = new();
 
+        public IEnumerable<User>? Senders { get; set; }
+
         public IFormFile? Image { get; set; }
 
         public IEnumerable<long>? CheckInterestsIds { get; set; }
