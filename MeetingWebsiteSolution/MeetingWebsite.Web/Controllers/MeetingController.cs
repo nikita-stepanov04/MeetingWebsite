@@ -11,6 +11,7 @@ namespace MeetingWebsite.Web.Controllers
 {
     [Authorize]
     [Route("/")]
+    [AutoValidateAntiforgeryToken]
     public class MeetingController : MeetingWebsiteViewController
     {
         private readonly UserManager<AppUser> _userManager;

@@ -1,22 +1,80 @@
 ﻿@model AccountViewModel
 
 <div class="row justify-content-center">
-    <div class="col-xl-8 col-lg-10 col-md-10 col-sm-12">
-        <img src=@(Model?.UserData.ImageLink ?? "/img/placeholder.jpg") id="user-image"
-             class="img-fluid object-fit-cover rounded-4 w-100"
-             style="max-height: 20rem;" />
-        <span asp-validation-for="Image" class="validation-error"></span>
-        <input class="form-control" asp-for="Image" type="file"
-               accept=".jpg, .jpeg, .png"/>
+    <div class="row justify-content-center">
+        <div class="col-xl-8 col-lg-10 col-md-10 col-sm-12">
+            <div class="d-none" id="croppieContainer"></div>
+            <img src=@(Model?.UserData.ImageLink ?? "/img/placeholder.jpg") id="userImage"
+                class="img-fluid rounded-4 w-100">
+            <div class="row mt-1">
+                <div class="col px-1">
+                    <input class="form-control" asp-for="Image" type="file"
+                           accept=".jpg, .jpeg, .png" />
+                </div>
+                <div class="col-3 px-1 d-none" id="cropButtonContainer">
+                    <div class="d-grid">
+                        <a class="btn btn-primary" id="btnCrop">Crop</a>
+                    </div>
+                </div>
+            </div>
+        </div>
     </div>
 </div>
 
-<script type="text/javascript">
+<script>
+    const upload = document.querySelector("#Image");
+    const croppieContainer = document.querySelector('#croppieContainer');
+    const croppedImage = document.querySelector('#userImage');
+    const cropButton = document.querySelector('#btnCrop');
+    const cropButtonContainer = document.querySelector('#cropButtonContainer');
+
+    var croppieInstance = new Croppie(croppieContainer, {
+        viewport: { width: 200, height: 200, type: 'square' },
+        boundary: { width: 250, height: 250 },
+        enableResize: false
+    });
+
+    cropButton.addEventListener('click', function () {
+        croppieInstance.result({
+            type: 'blob',
+            format: 'jpeg',
+            size: { width: 500, height: 500 }
+        }).then(function (blob) {
+            const file = new File([blob], "croppedImage.jpg", { type: "image/jpeg" });
+            const dataTransfer = new DataTransfer();
+            dataTransfer.items.add(file);
+            upload.files = dataTransfer.files;
+
+            const reader = new FileReader();
+            reader.onload = function (e) {
+                croppedImage.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+
+            toggleCrop();
+        });
+    });
+
     document.getElementById("Image").addEventListener("change", event => {
         const photo = event.target.files[0];
-        const img = document.getElementById("user-image");
-        img.src = photo
-            ? URL.createObjectURL(photo)
-            : "/img/placeholder.jpg";
+
+        if (photo) {
+            var reader = new FileReader();
+            reader.onload = function (event) {
+                croppieInstance.bind({
+                    url: event.target.result,
+                });
+            };
+            reader.readAsDataURL(photo);
+            toggleCrop();
+        } else {
+            croppedImage.src = "img/placeholder.jpg"
+        }
     });
+
+    function toggleCrop() {
+        cropButtonContainer.classList.toggle("d-none");
+        croppieContainer.classList.toggle("d-none");
+        croppedImage.classList.toggle("d-none");
+    }
 </script>

@@ -7,7 +7,7 @@
 <div class="row">
     <div class="col-md-8 col-sm-12">
         <div class="main-block h-100">
-            <div class="row justify-content-center justify-content-sm-start gy-2 gx-2">
+            <div class="row justify-content-center justify-content-sm-start gy-2 gx-3">
 
                 @* card *@
 
@@ -17,9 +17,7 @@
                         <div class="card">
                             <a asp-action="GetUser" asp-route-id="@user.UserId">
                                 <img src=@(user.ImageLink ?? "/img/placeholder.jpg")
-                                        class="card-img-top object-fit-cover"
-                                        alt="User photo"
-                                        style="height: 13rem;" />
+                                        class="card-img-top" alt="User photo"/>
                             </a>
                             <div class="card-body">
                                 <div class="d-flex justify-content-between">

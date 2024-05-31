@@ -61,3 +61,7 @@
     transform: scale(0.8);
     transition: opacity 0.5s ease, transform 0.5s ease;
 }
+
+.croppie-container {
+    height: 300px !important;
+}
