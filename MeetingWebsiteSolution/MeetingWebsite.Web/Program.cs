@@ -3,6 +3,7 @@ using MeetingWebsite.Domain.Interfaces;
 using MeetingWebsite.Infrastracture.EFRepository;
 using MeetingWebsite.Infrastracture.Models;
 using MeetingWebsite.Web.Models;
+using MeetingWebsite.Web.Models.SeedData;
 
 namespace MeetingWebsite.Web
 {
@@ -37,7 +38,6 @@ namespace MeetingWebsite.Web
             app.MapControllers();
             app.MapDefaultControllerRoute();
 
-            app.SeedIdentity();
             app.SeedData();
 
             app.Run();

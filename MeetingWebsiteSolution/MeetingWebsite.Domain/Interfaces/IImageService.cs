@@ -9,7 +9,8 @@ namespace MeetingWebsite.Domain.Interfaces
 
         Task<Image> CreateAsync(Image image);
 
-        Task<Image> CreateFromFormFileAsync(IFormFile formFile);
-        
+        Task<Image> CreateFromFileAsync(string filePath);
+
+        Task<Image> CreateFromFormFileAsync(IFormFile formFile);        
     }
 }

@@ -1,0 +1,11 @@
+[
+    { "InterestType": "Traveling" },
+    { "InterestType": "Culinary" },
+    { "InterestType": "Sports" },
+    { "InterestType": "Arts" },
+    { "InterestType": "Music" },
+    { "InterestType": "Literature" },
+    { "InterestType": "Technology" },
+    { "InterestType": "Gaming" },
+    { "InterestType": "Fitnes" }
+]

@@ -18,6 +18,10 @@
     <ProjectReference Include="..\MeetingWebsite.Infrastracture\MeetingWebsite.Infrastracture.csproj" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Folder Include="Models\SeedData\img\" />
+  </ItemGroup>
+
   <ProjectExtensions><VisualStudio><UserProperties /></VisualStudio></ProjectExtensions>
 
 </Project>

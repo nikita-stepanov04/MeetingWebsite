@@ -1,0 +1,72 @@
+[
+    {
+        "Firstname": "John",
+        "Secondname": "Doe",
+        "Gender": "1",
+        "Birthday": "2004-05-15",
+        "ImageLink": "img/UserImage1.jpg"
+    },
+    {
+        "Firstname": "Michael",
+        "Secondname": "Johnson",
+        "Gender": "1",
+        "Birthday": "2003-11-09",
+        "ImageLink": "img/UserImage2.jpg"
+    },
+    {
+        "Firstname": "Chris",
+        "Secondname": "Brown",
+        "Gender": "1",
+        "Birthday": "2006-01-16",
+        "ImageLink": "img/UserImage3.jpg"
+    },
+    {
+        "Firstname": "Jane",
+        "Secondname": "Smith",
+        "Gender": "2",
+        "Birthday": "2005-03-22",
+        "ImageLink": "img/UserImage4.jpg"
+    },
+    {
+        "Firstname": "Emily",
+        "Secondname": "Davis",
+        "Gender": "0",
+        "Birthday": "2002-07-30",
+        "ImageLink": "img/UserImage5.jpg"
+    },
+    {
+        "Firstname": "Anna",
+        "Secondname": "Wilson",
+        "Gender": "2",
+        "Birthday": "2001-09-04",
+        "ImageLink": "img/UserImage6.jpg"
+    },
+    {
+        "Firstname": "David",
+        "Secondname": "Miller",
+        "Gender": "0",
+        "Birthday": "2000-12-18",
+        "ImageLink": "img/UserImage7.jpg"
+    },
+    {
+        "Firstname": "Daniel",
+        "Secondname": "Garcia",
+        "Gender": "1",
+        "Birthday": "2004-04-03",
+        "ImageLink": "img/UserImage8.jpg"
+    },
+    {
+        "Firstname": "Sophia",
+        "Secondname": "Martinez",
+        "Gender": "2",
+        "Birthday": "2007-08-24",
+        "ImageLink": "img/UserImage9.jpg"
+    },
+    {
+        "Firstname": "Chris",
+        "Secondname": "Brown",
+        "Gender": "1",
+        "Birthday": "2005-06-12",
+        "ImageLink": "img/UserImage10.jpg"
+    }
+]

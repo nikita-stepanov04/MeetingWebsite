@@ -15,6 +15,8 @@ namespace MeetingWebsite.Domain.Interfaces
         Task<IEnumerable<User>> FindUsersByFiltersAndPagingInfo(
             FilterInfo? filters, PagingInfo pagingInfo, IEnumerable<User> except);
 
+        Task<int> Count();
+
         Task<int> SaveChangesAsync();
     }
 }

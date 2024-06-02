@@ -55,6 +55,8 @@ namespace MeetingWebsite.Application.Services
                 .Take(pagingInfo.ItemsPerPage)
                 .ToListAsync();
         }
+
+        public async Task<int> Count() => await _userRepository.GetQueryable().CountAsync();
     }
 
     internal static class IQueryableExtentions
