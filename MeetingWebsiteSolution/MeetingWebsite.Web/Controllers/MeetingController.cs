@@ -54,10 +54,15 @@ namespace MeetingWebsite.Web.Controllers
         [HttpGet("user/{id:long}")]
         public async Task<IActionResult> GetUser(long id)
         {
-            var user = await _userService.FindByIdAsync(id);
-            if (user != null)
+            var user = await _userService.FindByIdAsync((await AppUserTask).UserDataId);
+            var friend = await _userService.FindByIdAsync(id);             
+            if (user != null && friend != null)
             {
-                return View("User", user);
+                return View("User", new UserViewModel()
+                {
+                    User = friend,
+                    FriendhipInfo = await _friendshipService.GetFriendhipInfo(user, friend)
+                });
             }
             return NotFound();
         }

@@ -136,14 +136,12 @@ namespace MeetingWebsite.Infrastracture.Migrations
             migrationBuilder.CreateIndex(
                 name: "IX_FriendshipRequests_ReceiverId",
                 table: "FriendshipRequests",
-                column: "ReceiverId",
-                unique: true);
+                column: "ReceiverId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_FriendshipRequests_SenderId",
                 table: "FriendshipRequests",
-                column: "SenderId",
-                unique: true);
+                column: "SenderId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserFriend_UserId",

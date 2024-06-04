@@ -1,4 +1,4 @@
-﻿@model User
+﻿@model UserViewModel
 
 @{
     Layout = "_MeetingLayout";
@@ -9,26 +9,26 @@
 <div class="col-sm-10 offset-sm-1 col-12">
     <div class="main-block h-100">
         <div class="container">
-            <div class="row">
+            <div class="row">                
                 <div class="col-lg-6 col-md-5 col-sm-12">
                     <div class="mb-3">
-                        <partial name="Inputs/FirstnameInput" model="Model" />
+                        <partial name="Inputs/FirstnameInput" for="User" />
                     </div>
                     <div class="mb-3">
-                        <partial name="Inputs/SecondnameInput" model="Model"/>
+                        <partial name="Inputs/SecondnameInput" for="User"/>
                     </div>
                     <div class="mb-3">
-                        <partial name="Inputs/GenderInput" model="Model"/>
+                        <partial name="Inputs/GenderInput" for="User"/>
                     </div>
                     <div class="mb-3">
-                        <partial name="Inputs/BirthdayInput" model="Model"/>
-                    </div>
+                        <partial name="Inputs/BirthdayInput" for="User"/>
+                    </div>                    
                 </div>
                 <div class="col-lg-6 col-md-7 col-sm-12">
                     <div class="mb-3">
                         <div class="row justify-content-center">
                             <div class="col-xl-7 col-lg-9 col-md-10 col-sm-12">
-                                <img src=@(Model.ImageLink ?? "/img/placeholder.jpg") id="user-image"
+                                <img src=@(Model.User.ImageLink ?? "/img/placeholder.jpg") id="user-image"
                                      class="img-fluid object-fit-cover rounded-4 w-100"
                                      style="max-height: 15rem;" />
                             </div>
@@ -36,14 +36,51 @@
                     </div>
                     <div class="mb-3">
                         @await Component.InvokeAsync("InterestsList", new {
-                            checkedInterestsIds = Model.Interests?.Select(i => i.InterestId).ToList()
+                            checkedInterestsIds = Model.User.Interests?.Select(i => i.InterestId).ToList()
                         })
                     </div>
                 </div>                
             </div>
             <div class="row mt-4">
                 <div class="col-4">
-                    <partial name="Buttons/AddToFriendsButton"/>
+                    @if (!Model.FriendhipInfo.AreFriends)
+                    {
+                        if (Model.FriendhipInfo.RequestSent)
+                        {
+                            <partial name="Buttons/CancelFriendshipRequestButton" for="User" />
+                        }
+                        else if (Model.FriendhipInfo.RequestReceived)
+                        {
+                            <div class="d-flex">
+                                <form asp-controller="Meeting" asp-action="AcceptFriendshipRequest" class="flex-grow-1">
+                                    <input type="hidden" name="senderId" asp-for="User.UserId" />
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-sm btn-primary me-1">
+                                            <i class="fa-solid fa-check pe-1"></i>
+                                            Accept
+                                        </button>
+                                    </div>
+                                </form>
+                                <form asp-controller="Meeting" asp-action="RejectFriendshipRequest" class="flex-grow-1">
+                                    <input type="hidden" name="senderId" asp-for="User.UserId" />
+                                    <div class="d-grid">
+                                        <button type="submit" class="btn btn-sm btn-danger">
+                                            <i class="fa-solid fa-xmark pe-1"></i>
+                                            Reject
+                                        </button>
+                                    </div>
+                                </form>
+                            </div>
+                        }
+                        else
+                        {
+                            <partial name="Buttons/AddToFriendsButton" for="User" />
+                        }
+                    }
+                    else
+                    {
+                        <partial name="Buttons/DeleteFromFriendsButton" for="User" />
+                    }
                 </div>
                 <div class="col-4">
                     <partial name="Buttons/SendMessageButton"/>

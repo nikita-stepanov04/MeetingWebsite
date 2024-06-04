@@ -21,7 +21,8 @@ namespace MeetingWebsite.Application.Services
             User? sender = await FindByIdAsync(senderId);
             User? receiver = await FindByIdAsync(receiverId);
 
-            if (sender != null && receiver != null)
+            if (sender != null && receiver != null 
+                && (await GetFriendshipRequest(receiverId, senderId)) == null)
             {
                 await _repository.CreateAsync(new FriendshipRequest()
                 {
@@ -110,6 +111,41 @@ namespace MeetingWebsite.Application.Services
                 .Include(fr => fr.Receiver)
                 .Where(fr => fr.SenderId == sender.UserId)
                 .ToListAsync();
+
+        public async Task<FriendhipInfo> GetFriendhipInfo(User user, User friend)
+        { 
+            FriendhipInfo info = new();
+            if (!user.Friends?.Select(u => u.UserId).Contains(friend.UserId) == true)
+            {
+                FriendshipRequest? request = await GetNonPopulatedFriendshipRequest(
+                    user.UserId, friend.UserId);
+                if (request != null)
+                {
+                    info.RequestSent = true;
+                    info.Request = request;
+                }
+                else
+                {
+                    request = await GetNonPopulatedFriendshipRequest(friend.UserId, user.UserId);
+                    if (request != null)
+                    {
+                        info.RequestReceived = true;
+                        info.Request = request;
+                    }
+                }
+            }
+            else
+                info.AreFriends = true;
+            return info;
+        }
+
+        private async Task<FriendshipRequest?> GetNonPopulatedFriendshipRequest(
+            long senderId, long receiverId)
+        {
+            return await _repository.GetQueryable()
+                .FirstOrDefaultAsync(fr => fr.SenderId == senderId 
+                    && fr.ReceiverId == receiverId);
+        } 
 
         private async Task<FriendshipRequest?> GetFriendshipRequest(long senderId, long receiverId) =>
             await _repository.GetQueryable()

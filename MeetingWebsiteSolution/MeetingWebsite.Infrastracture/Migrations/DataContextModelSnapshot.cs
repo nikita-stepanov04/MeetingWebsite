@@ -38,11 +38,9 @@ namespace MeetingWebsite.Infrastracture.Migrations
 
                     b.HasKey("RequestId");
 
-                    b.HasIndex("ReceiverId")
-                        .IsUnique();
+                    b.HasIndex("ReceiverId");
 
-                    b.HasIndex("SenderId")
-                        .IsUnique();
+                    b.HasIndex("SenderId");
 
                     b.ToTable("FriendshipRequests");
                 });
@@ -154,14 +152,14 @@ namespace MeetingWebsite.Infrastracture.Migrations
             modelBuilder.Entity("MeetingWebsite.Domain.Models.FriendshipRequest", b =>
                 {
                     b.HasOne("MeetingWebsite.Domain.Models.User", "Receiver")
-                        .WithOne()
-                        .HasForeignKey("MeetingWebsite.Domain.Models.FriendshipRequest", "ReceiverId")
+                        .WithMany()
+                        .HasForeignKey("ReceiverId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 
                     b.HasOne("MeetingWebsite.Domain.Models.User", "Sender")
-                        .WithOne()
-                        .HasForeignKey("MeetingWebsite.Domain.Models.FriendshipRequest", "SenderId")
+                        .WithMany()
+                        .HasForeignKey("SenderId")
                         .OnDelete(DeleteBehavior.Restrict)
                         .IsRequired();
 

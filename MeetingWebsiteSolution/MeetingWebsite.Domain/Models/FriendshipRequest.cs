@@ -4,7 +4,6 @@ namespace MeetingWebsite.Domain.Models
 {
     public class FriendshipRequest
     {
-        [Key]
         public long RequestId { get; set; }
 
         [Required]

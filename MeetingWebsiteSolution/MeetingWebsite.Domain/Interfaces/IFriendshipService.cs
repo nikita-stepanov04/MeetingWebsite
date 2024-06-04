@@ -17,5 +17,7 @@ namespace MeetingWebsite.Domain.Interfaces
         Task<int> GetFriendshipRequestsCountAsync(User receiver);
 
         Task<IEnumerable<FriendshipRequest>> GetSentRequestsAsync(User sender);
+
+        Task<FriendhipInfo> GetFriendhipInfo(User user, User friend);
     }
 }

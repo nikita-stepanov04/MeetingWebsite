@@ -16,6 +16,7 @@ namespace MeetingWebsite.Web.Filters
                 _ = viewResult.Model switch
                 {
                     User user => UserModelHandler(user, url),
+                    UserViewModel model => UserViewModelHandler(model, url),
                     AccountViewModel model => AccountViewModelHandler(model, url),
                     MeetingViewModel model => MeetingViewModelHandler(model, url),
                     _ => default
@@ -23,7 +24,7 @@ namespace MeetingWebsite.Web.Filters
             }
         }
 
-        private static bool UserModelHandler(User user, IUrlHelper url)
+        private bool UserModelHandler(User user, IUrlHelper url)
         {
             user.ImageLink = url.GetImageUrl(user);
             return true;
@@ -45,6 +46,12 @@ namespace MeetingWebsite.Web.Filters
             {
                 user.ImageLink = url.GetImageUrl(user);
             }
+            return true;
+        }
+        
+        private bool UserViewModelHandler(UserViewModel model, IUrlHelper url)
+        {
+            model.User.ImageLink = url.GetImageUrl(model.User);
             return true;
         }
     }

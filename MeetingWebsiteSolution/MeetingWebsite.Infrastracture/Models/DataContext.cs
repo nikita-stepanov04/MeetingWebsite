@@ -43,13 +43,16 @@ namespace MeetingWebsite.Infrastracture.Models
                 .Ignore(u => u.ImageLink);
 
             modelBuilder.Entity<FriendshipRequest>()
-                .HasOne(fr => fr.Sender).WithOne()
-                .HasForeignKey<FriendshipRequest>(fr => fr.SenderId)
+                .HasKey(fr => fr.RequestId);
+
+            modelBuilder.Entity<FriendshipRequest>()
+                .HasOne(fr => fr.Sender).WithMany()
+                .HasForeignKey(fr => fr.SenderId)
                 .OnDelete(DeleteBehavior.Restrict);
 
             modelBuilder.Entity<FriendshipRequest>()
-                .HasOne(fr => fr.Receiver).WithOne()
-                .HasForeignKey<FriendshipRequest>(fr => fr.ReceiverId)
+                .HasOne(fr => fr.Receiver).WithMany()
+                .HasForeignKey(fr => fr.ReceiverId)
                 .OnDelete(DeleteBehavior.Restrict);
         }
     }
