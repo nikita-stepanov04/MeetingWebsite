@@ -1,59 +1,94 @@
 ﻿using MeetingWebsite.Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Caching.Distributed;
 using System.Drawing;
 using DomainImage = MeetingWebsite.Domain.Models.Image;
+using System.Drawing.Imaging;
+using MeetingWebsite.Application.Interfaces;
 
 namespace MeetingWebsite.Application.Services
 {
+#pragma warning disable CA1416
     public class ImageService : IImageService
     {
-        private readonly int defaultWidth = 500;
-        private readonly int defaultHeight = 500;
+        private readonly int _defaultWidth = 500;
+        private readonly int _defaultHeight = 500;
+        private readonly string _mimeType = "image/jpeg";
+        private readonly ImageFormat _imageType = ImageFormat.Jpeg;
 
         private readonly IRepository<DomainImage, long> _imageRepository;
+        private readonly IDistributedMeetingCache _cache;
 
-        public ImageService(IRepository<DomainImage, long> imageRepository)
+        public ImageService(IRepository<DomainImage, long> imageRepository,
+            IDistributedMeetingCache cache)
         {
             _imageRepository = imageRepository;
+            _cache = cache;
         }
 
         public Task<DomainImage> CreateAsync(DomainImage image) =>
             _imageRepository.CreateAsync(image);
 
-        public async Task<DomainImage> CreateFromFormFileAsync(IFormFile formFile)
+        public async Task<DomainImage> CreateFromFormFileAsync(IFormFile formFile) =>
+            await CreateAsync(await GetImageFromFormFileAsync(formFile));
+
+        public async Task<DomainImage> CreateFromFileAsync(string filePath) =>
+            await CreateAsync(GetImageFromFile(filePath));
+
+        public async Task<DomainImage> UpdateFromFormFileAsync(DomainImage image, IFormFile formFile)
+        {
+            DomainImage newImage = await GetImageFromFormFileAsync(formFile);
+            image.MimeType = newImage.MimeType;
+            image.Bitmap = newImage.Bitmap;
+            await _imageRepository.UpdateAsync(image);
+            await _cache.RemoveAsync(ImageCacheKey(image.ImageId));
+            return newImage;
+        }
+
+        public async Task<DomainImage> GetImageFromFormFileAsync(IFormFile formFile)
         {
             DomainImage image = new();
             using (MemoryStream stream = new())
-            { 
+            {
                 await formFile.CopyToAsync(stream);
                 CropImageInStream(stream);
 
                 image.Bitmap = stream.ToArray();
                 image.MimeType = formFile.ContentType;
             }
-            return await CreateAsync(image);
+            return image;
         }
 
-        public async Task<DomainImage> CreateFromFileAsync(string filePath)
+        public DomainImage GetImageFromFile(string filePath)
         {
             DomainImage image = new();
 
             if (!File.Exists(filePath))
-                    throw new FileNotFoundException($"File with path: {filePath} was not found");
+                throw new FileNotFoundException($"File with path: {filePath} was not found");
             using (MemoryStream stream = new(File.ReadAllBytes(filePath)))
-            {                
+            {
                 CropImageInStream(stream);
 
                 image.Bitmap = stream.ToArray();
-                image.MimeType = "image/jpeg";
+                image.MimeType = _mimeType;
             }
-            return await CreateAsync(image);
+            return image;
         }
 
-        public ValueTask<DomainImage?> FindByIdAsync(long id) =>
-            _imageRepository.FindByIdAsync(id);
+        public async ValueTask<DomainImage?> FindByIdAsync(long id)
+        {
+            DomainImage? image = await _cache.GetRecordAsync<DomainImage>(ImageCacheKey(id));
+            if (image == null)
+            {
+                image = await _imageRepository.FindByIdAsync(id);
+                if (image != null)
+                {
+                    await _cache.SetRecordAsync(ImageCacheKey(id), image);                    
+                }
+            }
+            return image;
+        }
 
-#pragma warning disable CA1416
         private void CropImageInStream(MemoryStream stream)
         {      
             using (Bitmap original = new(stream))
@@ -75,15 +110,15 @@ namespace MeetingWebsite.Application.Services
                     }
                     stream.SetLength(0);
                     stream.Seek(0, SeekOrigin.Begin);
-                    cropImage.Save(stream, System.Drawing.Imaging.ImageFormat.Jpeg);
+                    cropImage.Save(stream, _imageType);
                 }
             }
         }
 
         private Resolution GetCroppedDomainImageResolution(Bitmap original)
         {
-            int widthDiff = original.Width - defaultWidth;
-            int heightDiff = original.Height - defaultHeight;
+            int widthDiff = original.Width - _defaultWidth;
+            int heightDiff = original.Height - _defaultHeight;
 
             Resolution res = new();
 
@@ -91,28 +126,30 @@ namespace MeetingWebsite.Application.Services
             {
                 if (widthDiff < heightDiff)
                 {
-                    res.Width = defaultWidth + widthDiff;
-                    res.Height = res.Width * defaultHeight / defaultWidth;
+                    res.Width = _defaultWidth + widthDiff;
+                    res.Height = res.Width * _defaultHeight / _defaultWidth;
                 }
                 else if (heightDiff < widthDiff)
                 {
-                    res.Height = defaultHeight + heightDiff;
-                    res.Width = res.Height * defaultWidth / defaultHeight;
+                    res.Height = _defaultHeight + heightDiff;
+                    res.Width = res.Height * _defaultWidth / _defaultHeight;
                 }
                 else
                 {
-                    res.Width = defaultWidth + widthDiff;
-                    res.Height = defaultHeight + heightDiff;
+                    res.Width = _defaultWidth + widthDiff;
+                    res.Height = _defaultHeight + heightDiff;
                 }
             }
             else
             {
-                res.Width = defaultWidth;
-                res.Height = defaultHeight;
+                res.Width = _defaultWidth;
+                res.Height = _defaultHeight;
             }
             return res;
         }
 #pragma warning restore
+
+        private string ImageCacheKey(long id) => $"Image_{id}";
 
         struct Resolution
         {

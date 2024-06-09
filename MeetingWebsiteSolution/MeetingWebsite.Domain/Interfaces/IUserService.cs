@@ -1,4 +1,5 @@
 ﻿using MeetingWebsite.Domain.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace MeetingWebsite.Domain.Interfaces
 {

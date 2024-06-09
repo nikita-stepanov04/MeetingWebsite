@@ -142,7 +142,12 @@ namespace MeetingWebsite.Web.Controllers
                             user.Interests = await _interestService
                                 .FindByIdsAsync(model.CheckInterestsIds);
                         if (model.Image != null)
-                            user.Image = await _imageService.CreateFromFormFileAsync(model.Image);
+                        {
+                            user.Image = user.ImageId == null
+                                ? new()
+                                : await _imageService.FindByIdAsync((long)user.ImageId);                            
+                            await _imageService.UpdateFromFormFileAsync(user.Image!, model.Image);
+                        }                            
                         await _userDataService.UpdateAsync(user);
                         await _userDataService.SaveChangesAsync();
                     }

@@ -1,15 +1,20 @@
 ﻿using MeetingWebsite.Domain.Interfaces;
 using MeetingWebsite.Domain.Models;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 
 namespace MeetingWebsite.Application.Services
 {
     public class UserService : IUserService
     {
-        private IRepository<User, long> _userRepository;
-        public UserService(IRepository<User, long> rep)
+        private readonly IRepository<User, long> _userRepository;
+        private readonly IImageService _imageService;
+
+        public UserService(IRepository<User, long> rep,
+            IImageService imageService)
         {
             _userRepository = rep;
+            _imageService = imageService;
         }
 
         public Task<User?> FindByIdAsync(long id) =>
@@ -28,7 +33,7 @@ namespace MeetingWebsite.Application.Services
             _userRepository.DeleteAsync(entity);
 
         public Task<int> SaveChangesAsync() =>
-            _userRepository.SaveChangesAsync();
+            _userRepository.SaveChangesAsync();        
 
         public async Task<IEnumerable<User>> FindUsersByFiltersAndPagingInfo(
             FilterInfo? filterInfo, PagingInfo pagingInfo, IEnumerable<User> except)

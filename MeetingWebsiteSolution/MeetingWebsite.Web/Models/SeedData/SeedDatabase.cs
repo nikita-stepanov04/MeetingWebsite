@@ -44,7 +44,7 @@ namespace MeetingWebsite.Web.Models.SeedData
                     user.Image = await imageService
                         .CreateFromFileAsync($"Models/SeedData/{user.ImageLink!}");
                     user.Interests = interests.SelectRandom(4, rand).ToList();
-                    await userService.CreateAsync(user);                    
+                    await userService.CreateAsync(user);
                 }
                 await userService.SaveChangesAsync();
 

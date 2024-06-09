@@ -22,7 +22,7 @@ namespace MeetingWebsite.Web
             builder.Services.AddScoped<IUserService, UserService>();
             builder.Services.AddScoped<IInterestService, InterestService>();
             builder.Services.AddScoped<IImageService, ImageService>();            
-            builder.Services.AddScoped<IFriendshipService, FriendshipService>();            
+            builder.Services.AddScoped<IFriendshipService, FriendshipService>();
 
             var app = builder.Build();
 

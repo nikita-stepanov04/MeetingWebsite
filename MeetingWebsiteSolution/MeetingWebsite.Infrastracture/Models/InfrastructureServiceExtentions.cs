@@ -1,10 +1,9 @@
-﻿using MeetingWebsite.Infrastracture.Models.Identity;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using MeetingWebsite.Application.Interfaces;
+using MeetingWebsite.Infrastracture.Models.Identity;
+using MeetingWebsite.Infrastracture.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.IdentityModel.Tokens;
-using System.Text;
 
 namespace MeetingWebsite.Infrastracture.Models
 {
@@ -13,21 +12,29 @@ namespace MeetingWebsite.Infrastracture.Models
         public static IServiceCollection AddInfrastructureServices(
             this IServiceCollection services, ConfigurationManager config)
         {
-            string? connectionString = config.GetConnectionString("DbConnection");
-            if (connectionString != null)
+            string? dbConnection = config.GetConnectionString("DbConnection");
+            string? redisConnection = config.GetConnectionString("RedisConnection");
+            if (dbConnection != null && redisConnection != null)
             {
                 services.AddDbContext<DataContext>(opts =>
-                    opts.UseSqlServer(connectionString, opts
+                    opts.UseSqlServer(dbConnection, opts
                         => opts.MigrationsAssembly("MeetingWebsite.Infrastracture")));
 
                 services.AddDbContext<IdentityContext>(opts =>
-                    opts.UseSqlServer(connectionString, opts
+                    opts.UseSqlServer(dbConnection, opts
                         => opts.MigrationsAssembly("MeetingWebsite.Infrastracture")));
+
+                services.AddStackExchangeRedisCache(opts =>
+                {
+                    opts.Configuration = redisConnection;
+                    opts.InstanceName = "MeetingWebsite_";
+                });
+                services.AddScoped<IDistributedMeetingCache, DistributedMeetingCache>();
             }
             else
             {
-                throw new Exception("DbConnection string is not defined");
-            }            
+                throw new Exception("Connection strings are undefined");
+            }
             return services;
         }
     }
