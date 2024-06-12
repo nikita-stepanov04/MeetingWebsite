@@ -1,7 +1,9 @@
 ﻿using MeetingWebsite.Application.Interfaces;
+using MeetingWebsite.Domain.Models;
 using MeetingWebsite.Infrastracture.Models;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Caching.Distributed;
-using System.Text.Json;
+using Newtonsoft.Json;
 
 namespace MeetingWebsite.Infrastracture.Services
 {
@@ -16,26 +18,72 @@ namespace MeetingWebsite.Infrastracture.Services
             _context = context;
         }
 
-        public async Task SetRecordAsync<T>(string key, T value,
+        public async Task SetRecordAsync<T, TId>(string prefix, TId id, T value,
             TimeSpan? absoluteExpireTime = null,
             TimeSpan? unusedExpireTime = null) where T : class
         {
             var options = GetDistributedCacheEntryOptions(absoluteExpireTime, unusedExpireTime);
-            string json = JsonSerializer.Serialize(value);
-            await _cache.SetStringAsync(key, json, options);
+            string json = JsonConvert.SerializeObject(value,
+                new JsonSerializerSettings()
+                {
+                    ReferenceLoopHandling = ReferenceLoopHandling.Ignore
+                });
+            await _cache.SetStringAsync(GetCacheKey(prefix, id), json, options);
         }
 
-        public async Task<T?> GetRecordAsync<T>(string key) where T : class
+        public async Task<T?> GetRecordAsync<T, TId>(string prefix, TId id) where T : class
         {
-            string? json = await _cache.GetStringAsync(key);
-            if (json != null)
-            { 
-                T entity = JsonSerializer.Deserialize<T>(json)!;
-                _context.Set<T>().Attach(entity);
-                return entity;
+            T? local = _context.Set<T>().Local.FindEntry(id)?.Entity;
+            if (local == null)
+            {
+                string? json = await _cache.GetStringAsync(GetCacheKey(prefix, id));
+                if (json != null)
+                {
+                    T entity = JsonConvert.DeserializeObject<T>(json)!;
+                    _context.Set<T>().Attach(entity);
+                    return entity;
+                }
             }
-            return null;
+            return local;
         }
+
+        public async Task<User?> GetUserAsync(string prefix, long id)
+        {
+            User? local = _context.Users.Local.FindEntry(id)?.Entity;
+            if (local == null)
+            {
+                string? json = await _cache.GetStringAsync(GetCacheKey(prefix, id));
+                if (json != null)
+                {
+                    User user = JsonConvert.DeserializeObject<User>(json)!;
+
+                    var friendsIds = user.Friends?.Select(f => f.UserId) ?? [];
+                    var interestsIds = user.Interests?.Select(f => f.InterestId) ?? [];
+
+                    foreach (User friend in _context.Users.Local
+                        .Where(u => friendsIds.Contains(u.UserId)))
+                    {
+                        _context.Users.Local.Remove(friend);
+                    }
+                    foreach (Interest interest in _context.Interests.Local
+                        .Where(u => interestsIds.Contains(u.InterestId)))
+                    {
+                        _context.Interests.Local.Remove(interest);
+                    }
+                    foreach (Interest interest in user.Interests ?? [])
+                    {
+                        interest.Users = null;
+                    }
+
+                    _context.Users.Attach(user);
+                    return user;
+                }
+            }
+            return local;
+        }
+
+        public Task RemoveRecordAsync<TId>(string prefix, TId id) =>
+            _cache.RemoveAsync(GetCacheKey(prefix, id));
 
         byte[]? IDistributedCache.Get(string key) =>
             _cache.Get(key);
@@ -72,5 +120,7 @@ namespace MeetingWebsite.Infrastracture.Services
                 SlidingExpiration = unusedExpireTime
             };
         }
+
+        private string GetCacheKey<TId>(string prefix, TId id) => $"{prefix}_{id}";
     }
 }

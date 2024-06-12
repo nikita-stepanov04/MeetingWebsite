@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MeetingWebsite.Infrastracture.Migrations.Identity
 {
     [DbContext(typeof(IdentityContext))]
-    [Migration("20240604084412_Initial")]
+    [Migration("20240612160439_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
@@ -20,7 +20,7 @@ namespace MeetingWebsite.Infrastracture.Migrations.Identity
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "8.0.5")
+                .HasAnnotation("ProductVersion", "8.0.6")
                 .HasAnnotation("Relational:MaxIdentifierLength", 128);
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);

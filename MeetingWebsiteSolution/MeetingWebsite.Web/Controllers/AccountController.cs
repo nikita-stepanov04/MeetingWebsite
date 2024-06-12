@@ -132,7 +132,7 @@ namespace MeetingWebsite.Web.Controllers
                 {
                     User? user = await _userDataService.FindByIdAsync(appUser.UserDataId);
                     if (user != null)
-                    {
+                    {                       
                         user.Firstname = model.UserData.Firstname;
                         user.Secondname = model.UserData.Secondname;
                         user.Gender = model.UserData.Gender;
@@ -150,14 +150,14 @@ namespace MeetingWebsite.Web.Controllers
                         }                            
                         await _userDataService.UpdateAsync(user);
                         await _userDataService.SaveChangesAsync();
-                    }
+                    }                    
                     if (model.NewPassword != null && model.OldPassword != null)
                     {
                         var result = await _userManager.ChangePasswordAsync(appUser,
                             model.OldPassword, model.NewPassword);
                         if (!result.Succeeded)
                         {
-                            ModelState.AddModelError("NewPassword", "Failed to update password");
+                            ModelState.AddModelError("NewPassword", "Passwords are not equal");
                             return View("MyAccount", model);
                         }
                     }

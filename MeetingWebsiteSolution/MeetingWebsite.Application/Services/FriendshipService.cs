@@ -1,6 +1,8 @@
-﻿using MeetingWebsite.Domain.Interfaces;
+﻿using MeetingWebsite.Application.Interfaces;
+using MeetingWebsite.Domain.Interfaces;
 using MeetingWebsite.Domain.Models;
 using Microsoft.EntityFrameworkCore;
+using System.Runtime.CompilerServices;
 
 namespace MeetingWebsite.Application.Services
 {
@@ -8,12 +10,17 @@ namespace MeetingWebsite.Application.Services
     {
         private readonly IRepository<FriendshipRequest, long> _repository;
         private readonly IRepository<User, long> _userRepository;
+        private readonly IDistributedMeetingCache _cache;
+
+        private readonly string _userCachePrefix = "User";
 
         public FriendshipService(IRepository<FriendshipRequest, long> repository,
-            IRepository<User, long> userRepository)
+            IRepository<User, long> userRepository,
+            IDistributedMeetingCache cache)
         {
             _repository = repository;
             _userRepository = userRepository;
+            _cache = cache;
         }
 
         public async Task<bool> SendFriendshipRequestAsync(long senderId, long receiverId)
@@ -41,8 +48,8 @@ namespace MeetingWebsite.Application.Services
             User? friend = await FindByIdAsync(friendId);
             if (user != null && friend != null)
             {
-                List<User> userFriends = user.Friends as List<User> ?? new();
-                List<User> friendFriends = friend.Friends as List<User> ?? new();
+                HashSet<User> userFriends = user.Friends?.ToHashSet() ?? new();
+                HashSet<User> friendFriends = friend.Friends?.ToHashSet() ?? new();
 
                 userFriends.Remove(friend);
                 friendFriends.Remove(user);
@@ -53,6 +60,9 @@ namespace MeetingWebsite.Application.Services
                 await _userRepository.UpdateAsync(user);
                 await _userRepository.UpdateAsync(friend);
                 await _repository.SaveChangesAsync();
+
+                await _cache.RemoveRecordAsync(_userCachePrefix, userId);
+                await _cache.RemoveRecordAsync(_userCachePrefix, friendId);
                 return true;
             }
             return false;
@@ -61,22 +71,27 @@ namespace MeetingWebsite.Application.Services
         public async Task<bool> AcceptFriendshipRequestAsync(long senderId, long receiverId)
         {
             FriendshipRequest? request = await GetFriendshipRequest(senderId, receiverId);
-            if (request != null)
+            User? sender = await FindByIdAsync(senderId);
+            User? receiver = await FindByIdAsync(receiverId);
+            if (request != null && sender != null && receiver != null)
             {
-                List<User> senderFriends = request.Sender.Friends as List<User> ?? new();
-                List<User> receiverFriends = request.Receiver.Friends as List<User> ?? new();
+                HashSet<User> senderFriends = sender.Friends?.ToHashSet() ?? new();
+                HashSet<User> receiverFriends = receiver.Friends?.ToHashSet() ?? new();
 
                 senderFriends.Add(request.Receiver);
                 receiverFriends.Add(request.Sender);
 
-                request.Sender.Friends = senderFriends;
-                request.Receiver.Friends = receiverFriends;
+                sender.Friends = senderFriends;
+                receiver.Friends = receiverFriends;
 
-                await _userRepository.UpdateAsync(request.Sender);
-                await _userRepository.UpdateAsync(request.Receiver);
+                await _userRepository.UpdateAsync(sender);
+                await _userRepository.UpdateAsync(receiver);
 
                 await _repository.DeleteAsync(request);
                 await _repository.SaveChangesAsync();
+
+                await _cache.RemoveRecordAsync(_userCachePrefix, senderId);
+                await _cache.RemoveRecordAsync(_userCachePrefix, receiverId);
                 return true;
             }
             return false;

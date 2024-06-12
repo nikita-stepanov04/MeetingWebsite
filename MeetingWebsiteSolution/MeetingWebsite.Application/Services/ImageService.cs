@@ -1,10 +1,9 @@
-﻿using MeetingWebsite.Domain.Interfaces;
+﻿using MeetingWebsite.Application.Interfaces;
+using MeetingWebsite.Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.Caching.Distributed;
 using System.Drawing;
-using DomainImage = MeetingWebsite.Domain.Models.Image;
 using System.Drawing.Imaging;
-using MeetingWebsite.Application.Interfaces;
+using DomainImage = MeetingWebsite.Domain.Models.Image;
 
 namespace MeetingWebsite.Application.Services
 {
@@ -15,6 +14,7 @@ namespace MeetingWebsite.Application.Services
         private readonly int _defaultHeight = 500;
         private readonly string _mimeType = "image/jpeg";
         private readonly ImageFormat _imageType = ImageFormat.Jpeg;
+        private readonly string ImageCachePrefix = "Image";
 
         private readonly IRepository<DomainImage, long> _imageRepository;
         private readonly IDistributedMeetingCache _cache;
@@ -41,7 +41,7 @@ namespace MeetingWebsite.Application.Services
             image.MimeType = newImage.MimeType;
             image.Bitmap = newImage.Bitmap;
             await _imageRepository.UpdateAsync(image);
-            await _cache.RemoveAsync(ImageCacheKey(image.ImageId));
+            await _cache.RemoveRecordAsync(ImageCachePrefix, image.ImageId);
             return newImage;
         }
 
@@ -73,24 +73,25 @@ namespace MeetingWebsite.Application.Services
                 image.MimeType = _mimeType;
             }
             return image;
-        }
+        } 
 
         public async ValueTask<DomainImage?> FindByIdAsync(long id)
         {
-            DomainImage? image = await _cache.GetRecordAsync<DomainImage>(ImageCacheKey(id));
+            DomainImage? image = await _cache
+                .GetRecordAsync<DomainImage, long>(ImageCachePrefix, id);
             if (image == null)
             {
                 image = await _imageRepository.FindByIdAsync(id);
                 if (image != null)
                 {
-                    await _cache.SetRecordAsync(ImageCacheKey(id), image);                    
+                    await _cache.SetRecordAsync(ImageCachePrefix, id, image);
                 }
             }
             return image;
         }
 
         private void CropImageInStream(MemoryStream stream)
-        {      
+        {
             using (Bitmap original = new(stream))
             {
                 Resolution crop = GetCroppedDomainImageResolution(original);
@@ -148,8 +149,6 @@ namespace MeetingWebsite.Application.Services
             return res;
         }
 #pragma warning restore
-
-        private string ImageCacheKey(long id) => $"Image_{id}";
 
         struct Resolution
         {

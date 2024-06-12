@@ -14,6 +14,8 @@ namespace MeetingWebsite.Web.Models.SeedData
         public static async Task SeedDataAsync(WebApplication app)
         {
             string userPassword = "password";
+            string filePath = "Models/SeedData";
+            string jsonFilePath = $"{filePath}/json";
 
             var serviceProvider = app.Services.CreateScope().ServiceProvider;
             var config = app.Configuration;
@@ -26,7 +28,7 @@ namespace MeetingWebsite.Web.Models.SeedData
 
             if ((await interestService.GetAllAsync()).Count() == 0)
             {
-                string json = File.ReadAllText("Models/SeedData/json/Interests.json");
+                string json = File.ReadAllText($"{jsonFilePath}/Interests.json");
                 var interests = JsonConvert.DeserializeObject<List<Interest>>(json);
                 interests?.ForEach(async interest => await interestService.CreateAsync(interest));
                 await interestService.SaveChangesAsync();
@@ -34,33 +36,41 @@ namespace MeetingWebsite.Web.Models.SeedData
 
             if ((await userService.Count()) == 0)
             {
-                string json = File.ReadAllText("Models/SeedData/json/Users.json");
-                List<User> users = JsonConvert.DeserializeObject<List<User>>(json) ?? new();
-                List<Interest> interests = await interestService.GetAllAsync();
-
                 Random rand = new(47);
+
+                string json = File.ReadAllText($"{jsonFilePath}/Users.json");
+                List<User> users = JsonConvert.DeserializeObject<List<User>>(json) ?? new();
+                List<Interest> interests = await interestService.GetAllAsync();               
+
                 foreach (var user in users)
                 {
                     user.Image = await imageService
-                        .CreateFromFileAsync($"Models/SeedData/{user.ImageLink!}");
+                        .CreateFromFileAsync($"{filePath}/{user.ImageLink!}");
                     user.Interests = interests.SelectRandom(4, rand).ToList();
                     await userService.CreateAsync(user);
                 }
                 await userService.SaveChangesAsync();
 
-                int counter = 1;
+                string friendshipJson = File.ReadAllText($"{jsonFilePath}/Friendship.json");
+                var friendship = JsonConvert.DeserializeObject<List<Friendship>>(friendshipJson);
+
                 foreach (var user in users)
+                {
+                    var userFriendsIds = friendship!
+                        .Where(fr => fr.UserId == user.UserId)
+                        .Select(fr => fr.FriendId);                    
+                    user.Friends = users.Where(u => userFriendsIds.Contains(u.UserId)).ToList();
+                    await userService.UpdateAsync(user);
+                }
+
+                for (int i = 0; i < users.Count; i++)
                 {
                     AppUser appUser = new()
                     {
-                        UserName = $"user{counter}",
-                        UserDataId = user.UserId
+                        UserName = $"user{i + 1}",
+                        UserDataId = users[i].UserId
                     };
                     await userManager.CreateAsync(appUser, userPassword);
-
-                    user.Friends = users.SelectRandom(4, rand).ToList();
-                    await userService.UpdateAsync(user);
-                    counter++;
                 }
                 await userService.SaveChangesAsync();
             }
@@ -72,6 +82,12 @@ namespace MeetingWebsite.Web.Models.SeedData
             int enumerableCount = enumerable.Count();
             count = enumerableCount < count ? enumerableCount : count;
             return enumerable.OrderBy(i => rand.Next()).Take(count);
+        }
+
+        private class Friendship
+        {
+            public long UserId { get; set; }
+            public long FriendId { get; set; }
         }
     }    
 }

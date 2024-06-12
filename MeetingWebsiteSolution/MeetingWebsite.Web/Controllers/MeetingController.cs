@@ -103,7 +103,7 @@ namespace MeetingWebsite.Web.Controllers
             bool result = await _friendshipService.RejectFriendshipRequestAsync(
                 (await AppUserTask).UserDataId, receiverId);
             ConditionAlert(result,
-                "Frienship request has been canceled", "Your request has already been accepted");
+                "Frienship request has been canceled", "Request has been already accepted or rejected");
             return Redirect(ReturnPathHelper.GetReturnPath(TempData, HttpContext));
         }
 

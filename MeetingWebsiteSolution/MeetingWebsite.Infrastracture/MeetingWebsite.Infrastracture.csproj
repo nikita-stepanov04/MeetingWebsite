@@ -18,16 +18,13 @@
     <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="8.0.6" />
     <PackageReference Include="Microsoft.Extensions.Caching.StackExchangeRedis" Version="8.0.6" />
     <PackageReference Include="Microsoft.Extensions.Configuration" Version="8.0.0" />
+    <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
     <PackageReference Include="StackExchange.Redis" Version="2.7.33" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="7.6.0" />
   </ItemGroup>
 
   <ItemGroup>
     <ProjectReference Include="..\MeetingWebsite.Application\MeetingWebsite.Application.csproj" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <Folder Include="Migrations\" />
   </ItemGroup>
 
 </Project>

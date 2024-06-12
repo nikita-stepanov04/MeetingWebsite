@@ -17,8 +17,11 @@ namespace MeetingWebsite.Infrastracture.Models
             if (dbConnection != null && redisConnection != null)
             {
                 services.AddDbContext<DataContext>(opts =>
+                {
                     opts.UseSqlServer(dbConnection, opts
-                        => opts.MigrationsAssembly("MeetingWebsite.Infrastracture")));
+                        => opts.MigrationsAssembly("MeetingWebsite.Infrastracture"));
+                    opts.EnableSensitiveDataLogging();
+                });
 
                 services.AddDbContext<IdentityContext>(opts =>
                     opts.UseSqlServer(dbConnection, opts
