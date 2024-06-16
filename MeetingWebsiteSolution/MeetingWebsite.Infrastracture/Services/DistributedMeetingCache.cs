@@ -44,14 +44,16 @@ namespace MeetingWebsite.Infrastracture.Services
                     return entity;
                 }
             }
-            return local;
+            return null;
         }
 
         public async Task<User?> GetUserAsync(string prefix, long id)
         {
             User? local = _context.Users.Local.FindEntry(id)?.Entity;
-            if (local == null)
+            if (local == null || local.Friends == null || local.Interests == null)
             {
+                if (local != null)
+                    _context.Users.Local.Remove(local);
                 string? json = await _cache.GetStringAsync(GetCacheKey(prefix, id));
                 if (json != null)
                 {
@@ -63,23 +65,58 @@ namespace MeetingWebsite.Infrastracture.Services
                     foreach (User friend in _context.Users.Local
                         .Where(u => friendsIds.Contains(u.UserId)))
                     {
-                        _context.Users.Local.Remove(friend);
+                        _context.Entry(friend).State = EntityState.Detached;
                     }
                     foreach (Interest interest in _context.Interests.Local
                         .Where(u => interestsIds.Contains(u.InterestId)))
                     {
-                        _context.Interests.Local.Remove(interest);
+                        _context.Entry(interest).State = EntityState.Detached;
                     }
-                    foreach (Interest interest in user.Interests ?? [])
-                    {
-                        interest.Users = null;
-                    }
-
-                    _context.Users.Attach(user);
+                    _context.Users.Attach(user);                    
                     return user;
                 }
+                return null;
             }
-            return local;
+            return local;            
+        }
+
+        public async Task SetInterestsAsync(string prefix, IEnumerable<Interest> interests,
+            TimeSpan? absoluteExpireTime = null,
+            TimeSpan? unusedExpireTime = null)
+        {
+            var options = GetDistributedCacheEntryOptions(absoluteExpireTime, unusedExpireTime);
+            string json = JsonConvert.SerializeObject(interests);
+            await _cache.SetStringAsync(prefix, json, options);
+            await _cache.SetStringAsync($"{prefix}_Count", interests.Count().ToString(), options);
+        }
+
+        public async Task<List<Interest>?> GetInterestAsync(string prefix)
+        {
+            int count = Convert.ToInt32(await _cache.GetStringAsync($"{prefix}_Count"));
+            if (count == 0)
+                return null;
+            List<Interest> local = _context.Interests.Local.ToList();
+            if (local.Count == 0 || count > local.Count)
+            {
+                string? json = await _cache.GetStringAsync(prefix);
+                if (json != null)
+                {
+                    var interests = JsonConvert.DeserializeObject<List<Interest>>(json);
+                    if (interests != null)
+                    {
+                        var newInterestsIds = interests.Select(f => f.InterestId)
+                            .Except(_context.Interests.Local.Select(i => i.InterestId));
+
+                        foreach (Interest interest in interests
+                            .Where(i => newInterestsIds.Contains(i.InterestId)))
+                        {
+                            _context.Interests.Attach(interest);
+                        }
+                        return _context.Interests.Local.OrderBy(i => i.InterestId).ToList();
+                    }                        
+                }
+            }
+            return local.OrderBy(i => i.InterestId).ToList();
         }
 
         public Task RemoveRecordAsync<TId>(string prefix, TId id) =>

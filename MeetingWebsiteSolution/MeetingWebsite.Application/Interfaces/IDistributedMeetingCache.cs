@@ -13,6 +13,12 @@ namespace MeetingWebsite.Application.Interfaces
 
         Task<User?> GetUserAsync(string prefix, long id);
 
+        Task SetInterestsAsync(string prefix, IEnumerable<Interest> interests,
+            TimeSpan? absoluteExpireTime = null,
+            TimeSpan? unusedExpireTime = null);
+
+        Task<List<Interest>?> GetInterestAsync(string prefix);
+
         Task RemoveRecordAsync<TId>(string prefix, TId id);
     }
 }

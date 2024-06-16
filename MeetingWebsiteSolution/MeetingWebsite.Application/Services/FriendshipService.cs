@@ -2,7 +2,6 @@
 using MeetingWebsite.Domain.Interfaces;
 using MeetingWebsite.Domain.Models;
 using Microsoft.EntityFrameworkCore;
-using System.Runtime.CompilerServices;
 
 namespace MeetingWebsite.Application.Services
 {
@@ -28,7 +27,7 @@ namespace MeetingWebsite.Application.Services
             User? sender = await FindByIdAsync(senderId);
             User? receiver = await FindByIdAsync(receiverId);
 
-            if (sender != null && receiver != null 
+            if (sender != null && receiver != null
                 && (await GetFriendshipRequest(receiverId, senderId)) == null)
             {
                 await _repository.CreateAsync(new FriendshipRequest()
@@ -128,7 +127,7 @@ namespace MeetingWebsite.Application.Services
                 .ToListAsync();
 
         public async Task<FriendhipInfo> GetFriendhipInfo(User user, User friend)
-        { 
+        {
             FriendhipInfo info = new();
             if (!user.Friends?.Select(u => u.UserId).Contains(friend.UserId) == true)
             {
@@ -158,9 +157,9 @@ namespace MeetingWebsite.Application.Services
             long senderId, long receiverId)
         {
             return await _repository.GetQueryable()
-                .FirstOrDefaultAsync(fr => fr.SenderId == senderId 
+                .FirstOrDefaultAsync(fr => fr.SenderId == senderId
                     && fr.ReceiverId == receiverId);
-        } 
+        }
 
         private async Task<FriendshipRequest?> GetFriendshipRequest(long senderId, long receiverId) =>
             await _repository.GetQueryable()

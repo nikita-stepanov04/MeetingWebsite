@@ -32,6 +32,15 @@ namespace MeetingWebsite.Application.Services
                     .FirstOrDefaultAsync(u => u.UserId == id);
                 if (user != null)
                 {
+                    foreach (Interest interest in user.Interests ?? [])
+                    {
+                        interest.Users = null;
+                    }
+                    foreach (User friend in user.Friends ?? [])
+                    {
+                        friend.Friends = null;
+                        friend.Interests = null;
+                    }
                     await _cache.SetRecordAsync(UserCachePrefix, id, user);
                 }
             }

@@ -1,8 +1,6 @@
 ﻿using MeetingWebsite.Domain.Interfaces;
 using MeetingWebsite.Domain.Models;
 using MeetingWebsite.Infrastracture.Models.Identity;
-using MeetingWebsite.Web.Filters;
-using MeetingWebsite.Web.Helpers;
 using MeetingWebsite.Web.Models;
 using MeetingWebsite.Web.Models.ViewModels;
 using Microsoft.AspNetCore.Authorization;
@@ -132,25 +130,28 @@ namespace MeetingWebsite.Web.Controllers
                 {
                     User? user = await _userDataService.FindByIdAsync(appUser.UserDataId);
                     if (user != null)
-                    {                       
+                    {
                         user.Firstname = model.UserData.Firstname;
                         user.Secondname = model.UserData.Secondname;
                         user.Gender = model.UserData.Gender;
                         user.Birthday = model.UserData.Birthday;
 
                         if (model.CheckInterestsIds != null)
-                            user.Interests = await _interestService
-                                .FindByIdsAsync(model.CheckInterestsIds);
+                        {
+                            user.Interests = (await _interestService
+                                 .FindByIdsAsync(model.CheckInterestsIds)).ToList();
+                        }
+
                         if (model.Image != null)
                         {
                             user.Image = user.ImageId == null
                                 ? new()
-                                : await _imageService.FindByIdAsync((long)user.ImageId);                            
+                                : await _imageService.FindByIdAsync((long)user.ImageId);
                             await _imageService.UpdateFromFormFileAsync(user.Image!, model.Image);
-                        }                            
+                        }
                         await _userDataService.UpdateAsync(user);
                         await _userDataService.SaveChangesAsync();
-                    }                    
+                    }
                     if (model.NewPassword != null && model.OldPassword != null)
                     {
                         var result = await _userManager.ChangePasswordAsync(appUser,
