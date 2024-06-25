@@ -22,6 +22,31 @@ namespace MeetingWebsite.Infrastracture.Migrations
 
             SqlServerModelBuilderExtensions.UseIdentityColumns(modelBuilder);
 
+            modelBuilder.Entity("MeetingWebsite.Domain.Models.Chat", b =>
+                {
+                    b.Property<Guid>("ChatId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<string>("ChatName")
+                        .IsRequired()
+                        .HasColumnType("nvarchar(max)");
+
+                    b.Property<long>("User1Id")
+                        .HasColumnType("bigint");
+
+                    b.Property<long>("User2Id")
+                        .HasColumnType("bigint");
+
+                    b.HasKey("ChatId");
+
+                    b.HasIndex("User1Id");
+
+                    b.HasIndex("User2Id");
+
+                    b.ToTable("Chats");
+                });
+
             modelBuilder.Entity("MeetingWebsite.Domain.Models.FriendshipRequest", b =>
                 {
                     b.Property<long>("RequestId")
@@ -82,6 +107,40 @@ namespace MeetingWebsite.Infrastracture.Migrations
                     b.HasKey("InterestId");
 
                     b.ToTable("Interests");
+                });
+
+            modelBuilder.Entity("MeetingWebsite.Domain.Models.Message", b =>
+                {
+                    b.Property<long>("MessageId")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("bigint");
+
+                    SqlServerPropertyBuilderExtensions.UseIdentityColumn(b.Property<long>("MessageId"));
+
+                    b.Property<long>("AuthorId")
+                        .HasColumnType("bigint");
+
+                    b.Property<Guid?>("ChatId")
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<long?>("ImageId")
+                        .HasColumnType("bigint");
+
+                    b.Property<bool>("IsRead")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Text")
+                        .HasMaxLength(1024)
+                        .HasColumnType("nvarchar(1024)");
+
+                    b.HasKey("MessageId");
+
+                    b.HasIndex("ChatId");
+
+                    b.ToTable("Messages");
                 });
 
             modelBuilder.Entity("MeetingWebsite.Domain.Models.User", b =>
@@ -149,6 +208,25 @@ namespace MeetingWebsite.Infrastracture.Migrations
                     b.ToTable("UserInterest");
                 });
 
+            modelBuilder.Entity("MeetingWebsite.Domain.Models.Chat", b =>
+                {
+                    b.HasOne("MeetingWebsite.Domain.Models.User", "User1")
+                        .WithMany()
+                        .HasForeignKey("User1Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.HasOne("MeetingWebsite.Domain.Models.User", "User2")
+                        .WithMany()
+                        .HasForeignKey("User2Id")
+                        .OnDelete(DeleteBehavior.Restrict)
+                        .IsRequired();
+
+                    b.Navigation("User1");
+
+                    b.Navigation("User2");
+                });
+
             modelBuilder.Entity("MeetingWebsite.Domain.Models.FriendshipRequest", b =>
                 {
                     b.HasOne("MeetingWebsite.Domain.Models.User", "Receiver")
@@ -166,6 +244,13 @@ namespace MeetingWebsite.Infrastracture.Migrations
                     b.Navigation("Receiver");
 
                     b.Navigation("Sender");
+                });
+
+            modelBuilder.Entity("MeetingWebsite.Domain.Models.Message", b =>
+                {
+                    b.HasOne("MeetingWebsite.Domain.Models.Chat", null)
+                        .WithMany("Messages")
+                        .HasForeignKey("ChatId");
                 });
 
             modelBuilder.Entity("MeetingWebsite.Domain.Models.User", b =>
@@ -205,6 +290,11 @@ namespace MeetingWebsite.Infrastracture.Migrations
                         .HasForeignKey("UserId")
                         .OnDelete(DeleteBehavior.Cascade)
                         .IsRequired();
+                });
+
+            modelBuilder.Entity("MeetingWebsite.Domain.Models.Chat", b =>
+                {
+                    b.Navigation("Messages");
                 });
 #pragma warning restore 612, 618
         }

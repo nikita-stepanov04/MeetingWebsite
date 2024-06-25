@@ -72,7 +72,7 @@
             <div class="container-fluid">
                 @foreach(User sender in Model.Senders ?? [])
                 {
-                    <div class="row main-block pt-3 pb-1 px-0 mb-3" style="background-color: #ebeced">
+                    <div class="row main-block py-1 px-0 mb-3" style="background-color: #ebeced">
                         <div class="col overflow-auto">
                             <a asp-controller="Meeting" asp-action="GetUser"
                                     asp-route-id="@sender.UserId" class="navbar-brand d-flex">
@@ -89,7 +89,7 @@
                                 </div>
                             </a>
                         </div>
-                        <div class="col-auto d-flex mt-2 px-0">
+                        <div class="col-auto d-flex mt-3 px-0">
                             @{ ViewBag.SignatureRequeired = false; }
                             <partial name="Buttons/AcceptRejectFriendshipRequestButton" model="@sender" />
                         </div>

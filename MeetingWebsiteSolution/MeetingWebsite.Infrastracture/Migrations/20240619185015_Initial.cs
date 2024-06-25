@@ -61,6 +61,32 @@ namespace MeetingWebsite.Infrastracture.Migrations
                 });
 
             migrationBuilder.CreateTable(
+                name: "Chats",
+                columns: table => new
+                {
+                    ChatId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
+                    ChatName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    User1Id = table.Column<long>(type: "bigint", nullable: false),
+                    User2Id = table.Column<long>(type: "bigint", nullable: false)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Chats", x => x.ChatId);
+                    table.ForeignKey(
+                        name: "FK_Chats_Users_User1Id",
+                        column: x => x.User1Id,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Restrict);
+                    table.ForeignKey(
+                        name: "FK_Chats_Users_User2Id",
+                        column: x => x.User2Id,
+                        principalTable: "Users",
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Restrict);
+                });
+
+            migrationBuilder.CreateTable(
                 name: "FriendshipRequests",
                 columns: table => new
                 {
@@ -133,6 +159,39 @@ namespace MeetingWebsite.Infrastracture.Migrations
                         onDelete: ReferentialAction.Cascade);
                 });
 
+            migrationBuilder.CreateTable(
+                name: "Messages",
+                columns: table => new
+                {
+                    MessageId = table.Column<long>(type: "bigint", nullable: false)
+                        .Annotation("SqlServer:Identity", "1, 1"),
+                    Text = table.Column<string>(type: "nvarchar(1024)", maxLength: 1024, nullable: true),
+                    ImageId = table.Column<long>(type: "bigint", nullable: true),
+                    AuthorId = table.Column<long>(type: "bigint", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
+                    IsRead = table.Column<bool>(type: "bit", nullable: false),
+                    ChatId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                },
+                constraints: table =>
+                {
+                    table.PrimaryKey("PK_Messages", x => x.MessageId);
+                    table.ForeignKey(
+                        name: "FK_Messages_Chats_ChatId",
+                        column: x => x.ChatId,
+                        principalTable: "Chats",
+                        principalColumn: "ChatId");
+                });
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Chats_User1Id",
+                table: "Chats",
+                column: "User1Id");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Chats_User2Id",
+                table: "Chats",
+                column: "User2Id");
+
             migrationBuilder.CreateIndex(
                 name: "IX_FriendshipRequests_ReceiverId",
                 table: "FriendshipRequests",
@@ -142,6 +201,11 @@ namespace MeetingWebsite.Infrastracture.Migrations
                 name: "IX_FriendshipRequests_SenderId",
                 table: "FriendshipRequests",
                 column: "SenderId");
+
+            migrationBuilder.CreateIndex(
+                name: "IX_Messages_ChatId",
+                table: "Messages",
+                column: "ChatId");
 
             migrationBuilder.CreateIndex(
                 name: "IX_UserFriend_UserId",
@@ -166,10 +230,16 @@ namespace MeetingWebsite.Infrastracture.Migrations
                 name: "FriendshipRequests");
 
             migrationBuilder.DropTable(
+                name: "Messages");
+
+            migrationBuilder.DropTable(
                 name: "UserFriend");
 
             migrationBuilder.DropTable(
                 name: "UserInterest");
+
+            migrationBuilder.DropTable(
+                name: "Chats");
 
             migrationBuilder.DropTable(
                 name: "Interests");

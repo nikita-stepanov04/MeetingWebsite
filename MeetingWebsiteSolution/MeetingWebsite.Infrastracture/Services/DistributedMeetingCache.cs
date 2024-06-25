@@ -53,7 +53,7 @@ namespace MeetingWebsite.Infrastracture.Services
             if (local == null || local.Friends == null || local.Interests == null)
             {
                 if (local != null)
-                    _context.Users.Local.Remove(local);
+                    _context.Entry(local).State = EntityState.Detached;
                 string? json = await _cache.GetStringAsync(GetCacheKey(prefix, id));
                 if (json != null)
                 {

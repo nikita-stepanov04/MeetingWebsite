@@ -2,6 +2,7 @@ using MeetingWebsite.Application.Services;
 using MeetingWebsite.Domain.Interfaces;
 using MeetingWebsite.Infrastracture.EFRepository;
 using MeetingWebsite.Infrastracture.Models;
+using MeetingWebsite.Web.Hubs.Chat;
 using MeetingWebsite.Web.Models;
 using MeetingWebsite.Web.Models.SeedData;
 
@@ -15,6 +16,7 @@ namespace MeetingWebsite.Web
 
             builder.Services.AddControllersWithViews();
             builder.Services.AddRazorPages();
+            builder.Services.AddSignalR();
             builder.Services.AddInfrastructureServices(builder.Configuration);
             builder.Services.AddIdentityServices(builder.Configuration);
 
@@ -23,7 +25,7 @@ namespace MeetingWebsite.Web
             builder.Services.AddScoped<IInterestService, InterestService>();
             builder.Services.AddScoped<IImageService, ImageService>();            
             builder.Services.AddScoped<IFriendshipService, FriendshipService>();
-
+            builder.Services.AddScoped<IChatService, ChatService>();
             var app = builder.Build();
 
             app.UseHttpsRedirection();
@@ -37,6 +39,8 @@ namespace MeetingWebsite.Web
 
             app.MapControllers();
             app.MapDefaultControllerRoute();
+            app.MapHub<ChatHub>("/wsChat")
+                .RequireAuthorization();
 
             app.SeedData();
 

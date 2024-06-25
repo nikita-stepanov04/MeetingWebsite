@@ -16,6 +16,7 @@ namespace MeetingWebsite.Web.Filters
                 _ = viewResult.Model switch
                 {
                     User user => UserModelHandler(user, url),
+                    Chat chat => ChatModelHandler(chat, url),
                     UserViewModel model => UserViewModelHandler(model, url),
                     AccountViewModel model => AccountViewModelHandler(model, url),
                     MeetingViewModel model => MeetingViewModelHandler(model, url),
@@ -27,6 +28,15 @@ namespace MeetingWebsite.Web.Filters
         private bool UserModelHandler(User user, IUrlHelper url)
         {
             user.ImageLink = url.GetImageUrl(user);
+            return true;
+        }
+
+        private bool ChatModelHandler(Chat chat, IUrlHelper url)
+        {
+            if (chat.User1 != null)
+                chat.User1.ImageLink = url.GetImageUrl(chat.User1);
+            if (chat.User2 != null)
+                chat.User2.ImageLink = url.GetImageUrl(chat.User2);
             return true;
         }
 
@@ -48,7 +58,7 @@ namespace MeetingWebsite.Web.Filters
             }
             return true;
         }
-        
+
         private bool UserViewModelHandler(UserViewModel model, IUrlHelper url)
         {
             model.User.ImageLink = url.GetImageUrl(model.User);

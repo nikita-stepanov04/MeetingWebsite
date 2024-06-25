@@ -65,3 +65,25 @@
 .croppie-container {
     height: 300px !important;
 }
+
+.chat {
+    display: flex;
+    flex-direction: column;
+    height: 80vh;
+}
+
+.chat-header {
+    border-top-left-radius: 1rem;
+    border-top-right-radius: 1rem;
+    background-color: #ebeced;
+    flex: 0 1 auto;
+}
+
+.chat-main {
+    flex: 1 1 auto;
+    overflow-y: auto;
+}
+
+.chat-footer {
+    flex: 0 1 auto;
+}

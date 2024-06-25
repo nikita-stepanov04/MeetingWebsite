@@ -1,5 +1,8 @@
-﻿<form asp-action="">
+﻿@model User
+
+<form asp-controller="Chat" asp-action="GetChat" asp-route-userId="@Model.UserId" method="get">
     <div class="d-grid">
+        <input type="hidden" value="@Model.UserId"/>
         <button type="submit" class="btn btn-sm btn-primary">
             <i class="fa-solid fa-paper-plane me-1"></i>
             Send Message

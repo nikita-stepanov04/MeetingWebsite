@@ -1,0 +1,72 @@
+﻿@model Chat
+@{
+    Layout = "_MeetingLayout";
+    ReturnPathHelper.PushNewPage(TempData, Context);
+}
+
+<div class="col-sm-10 offset-sm-1 col-12">
+    <div class="main-block p-0">
+        <div class="chat">
+            <div class="chat-header">
+                <div class="container-fluid">
+                    <div class="row">
+                        <nav class="navbar py-0">
+                            <div class="container-xxl container-fluid">
+                                <a class="navbar-brand" asp-controller="Meeting" asp-action="GetUser"
+                                   asp-route-id="@Model.User2?.UserId">
+                                    <img src=@(Model.User2?.ImageLink ?? "/img/avatar.png")
+                                         width="35" height="35"
+                                         class="d-inline-block align-text-top rounded-circle" />
+                                    <span class="fw-semibold ms-2 align-middle">
+                                        @Model.User2?.Firstname @Model.User2?.Secondname
+                                    </span>
+                                </a>
+                                <div class="d-flex align-items-center">
+                                    <a class="link-secondary me-2">
+                                        <i class="fa-regular fa-image fa-2xl"></i>
+                                    </a>
+                                    <partial name="Buttons/GoBackButton" />
+                                </div>
+                            </div>
+                        </nav>
+                    </div>
+                </div>
+            </div>
+            <div class="chat-main">
+                <div class="container">
+                    <div class="my-3 mx-3" id="chatContainer">
+                    </div>
+                </div>
+            </div>
+            <div class="chat-footer px-4 py-2">
+                <div class="d-flex">
+                    <div class="me-2 flex-grow-1">
+                        <input class="form-control rounded-4"
+                            id="messageInput" placeholder="Enter message" />
+                    </div>
+                    <div class="flex-grow-0">
+                        <button class="btn btn-primary rounded-4 h-100 px-5" id="sendButton">
+                            <i class="fa-solid fa-paper-plane fa-xs me-2"></i>
+                            Send
+                        </button>
+                    </div>
+                </div>                
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="d-none">
+    <input type="hidden" asp-for="ChatId" id="chatIdInput" />
+
+    <input type="hidden" asp-for="User1.UserId" id="user1IdInput" />
+    <input type="hidden" asp-for="User1.ImageLink" id="user1ImageLinkInput" />
+    <input type="hidden" asp-for="User1.Firstname" id="user1FirstnameInput" />
+    <input type="hidden" asp-for="User1.Secondname" id="user1SecondnameInput" />
+
+    <input type="hidden" asp-for="User2.ImageLink" id="user2ImageLinkInput" />
+    <input type="hidden" asp-for="User2.Firstname" id="user2FirstnameInput" />
+    <input type="hidden" asp-for="User2.Secondname" id="user2SecondnameInput" />
+</div>
+
+<script src="~/js/chat.js"></script>
