@@ -400,3 +400,4 @@ FodyWeavers.xsd
 /MeetingWebsiteSolution/MeetingWebsite.Web/appsettings.Development.json
 /MeetingWebsiteSolution/MeetingWebsite.Web/wwwroot/lib
 /MeetingWebsiteSolution/ResetDatabase.ps1
+/MeetingWebsiteSolution/MeetingWebsite.Web/.idea

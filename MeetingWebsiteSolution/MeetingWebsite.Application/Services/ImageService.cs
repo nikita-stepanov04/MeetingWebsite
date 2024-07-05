@@ -1,7 +1,9 @@
 ﻿using MeetingWebsite.Application.Interfaces;
 using MeetingWebsite.Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
+using Microsoft.EntityFrameworkCore;
 using System.Drawing;
+using System.Drawing.Drawing2D;
 using System.Drawing.Imaging;
 using DomainImage = MeetingWebsite.Domain.Models.Image;
 
@@ -12,6 +14,10 @@ namespace MeetingWebsite.Application.Services
     {
         private readonly int _defaultWidth = 500;
         private readonly int _defaultHeight = 500;
+
+        private readonly int _maxCompressWidth = 800;
+        private readonly int _maxCompressHeight = 800;
+
         private readonly string _mimeType = "image/jpeg";
         private readonly ImageFormat _imageType = ImageFormat.Jpeg;
         private readonly string ImageCachePrefix = "Image";
@@ -26,59 +32,40 @@ namespace MeetingWebsite.Application.Services
             _cache = cache;
         }
 
-        public Task<DomainImage> CreateAsync(DomainImage image) =>
+        public Task<DomainImage> CreateAsync(DomainImage image) => 
             _imageRepository.CreateAsync(image);
 
-        public async Task<DomainImage> CreateFromFormFileAsync(IFormFile formFile) =>
-            await CreateAsync(await GetImageFromFormFileAsync(formFile));
+        public async Task<DomainImage> CreateFromFormFileAsync(IFormFile formFile)
+        {
+            return await CreateAsync(await GetImageFromFormFileAsync(formFile, CropImageInStream));
+        }
 
-        public async Task<DomainImage> CreateFromFileAsync(string filePath) =>
-            await CreateAsync(GetImageFromFile(filePath));
+        public async Task<DomainImage> CreateFromFormFileCompressedOriginalAspectRatio(
+            IFormFile formFile)
+        {
+            return await CreateAsync(await
+                GetImageFromFormFileAsync(formFile, CompressImageInStream));
+        }
+
+        public async Task<DomainImage> CreateFromFileAsync(string filePath)
+        {
+            return await CreateAsync(GetImageFromFile(filePath));
+        }
 
         public async Task<DomainImage> UpdateFromFormFileAsync(DomainImage image, IFormFile formFile)
         {
-            DomainImage newImage = await GetImageFromFormFileAsync(formFile);
+            DomainImage newImage = await
+                GetImageFromFormFileAsync(formFile, CropImageInStream);
             image.MimeType = newImage.MimeType;
             image.Bitmap = newImage.Bitmap;
             await _imageRepository.UpdateAsync(image);
             await _cache.RemoveRecordAsync(ImageCachePrefix, image.ImageId);
             return newImage;
-        }
-
-        public async Task<DomainImage> GetImageFromFormFileAsync(IFormFile formFile)
-        {
-            DomainImage image = new();
-            using (MemoryStream stream = new())
-            {
-                await formFile.CopyToAsync(stream);
-                CropImageInStream(stream);
-
-                image.Bitmap = stream.ToArray();
-                image.MimeType = formFile.ContentType;
-            }
-            return image;
-        }
-
-        public DomainImage GetImageFromFile(string filePath)
-        {
-            DomainImage image = new();
-
-            if (!File.Exists(filePath))
-                throw new FileNotFoundException($"File with path: {filePath} was not found");
-            using (MemoryStream stream = new(File.ReadAllBytes(filePath)))
-            {
-                CropImageInStream(stream);
-
-                image.Bitmap = stream.ToArray();
-                image.MimeType = _mimeType;
-            }
-            return image;
-        } 
+        }        
 
         public async ValueTask<DomainImage?> FindByIdAsync(long id)
         {
-            DomainImage? image = await _cache
-                .GetRecordAsync<DomainImage, long>(ImageCachePrefix, id);
+            DomainImage? image = await _cache.GetImageAsync(ImageCachePrefix, id);
             if (image == null)
             {
                 image = await _imageRepository.FindByIdAsync(id);
@@ -90,11 +77,39 @@ namespace MeetingWebsite.Application.Services
             return image;
         }
 
+        public async Task<DomainImage?> GetImageInfoAsync(long imageId)
+        {
+            DomainImage? image = await _cache.GetImageAsync(ImageCachePrefix, imageId);
+            if (image == null)
+            {
+                image = await _imageRepository.GetQueryable()
+                    .Where(i => i.ImageId == imageId)
+                    .Select(i => new DomainImage()
+                    {
+                        ImageId = i.ImageId,
+                        MimeType = i.MimeType,
+                        ChatId = i.ChatId
+                    })
+                    .FirstOrDefaultAsync();                
+                return image;
+            }
+            image.Bitmap = [];
+            return image;
+        }
+
+        public async ValueTask<DomainImage> Remove(DomainImage image)
+        {
+            await _cache.RemoveRecordAsync(ImageCachePrefix, image.ImageId);
+            return await _imageRepository.DeleteAsync(image);
+        }
+
+        public Task<int> SaveChangesAsync() => _imageRepository.SaveChangesAsync();
+
         private void CropImageInStream(MemoryStream stream)
         {
             using (Bitmap original = new(stream))
             {
-                Resolution crop = GetCroppedDomainImageResolution(original);
+                Resolution crop = GetCroppedImageResolution(original);
 
                 // Span to center crop area on the original image
                 int cropXSpan = (original.Width - crop.Width) / 2;
@@ -116,7 +131,55 @@ namespace MeetingWebsite.Application.Services
             }
         }
 
-        private Resolution GetCroppedDomainImageResolution(Bitmap original)
+        private void CompressImageInStream(MemoryStream stream)
+        {
+            using (Bitmap original = new(stream))
+            {
+                Resolution compress = GetCompressedImageResolution(original);
+
+                using (Bitmap compressedImage = new Bitmap(compress.Width, compress.Height))
+                {
+                    using (Graphics graphics = Graphics.FromImage(compressedImage))
+                    {
+                        graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
+                        graphics.SmoothingMode = SmoothingMode.HighQuality;
+                        graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
+                        graphics.CompositingQuality = CompositingQuality.HighQuality;
+
+                        graphics.DrawImage(original, 0, 0, compress.Width, compress.Height);
+                    }
+                    stream.SetLength(0);
+                    stream.Seek(0, SeekOrigin.Begin);
+                    compressedImage.Save(stream, _imageType);
+                }
+            }
+        }
+
+        private Resolution GetCompressedImageResolution(Bitmap original)
+        {
+            Resolution res = new();
+            if (original.Width > _maxCompressWidth || original.Height > _maxCompressHeight)
+            {
+                if (original.Width > original.Height)
+                {
+                    res.Width = _maxCompressWidth;
+                    res.Height = (int)((float)original.Height / original.Width * _maxCompressWidth);
+                }
+                else
+                {
+                    res.Height = _maxCompressHeight;
+                    res.Width = (int)((float)original.Width / original.Height * _maxCompressHeight);
+                }
+            }
+            else
+            {
+                res.Width = original.Width;
+                res.Height = original.Height;
+            }
+            return res;
+        }
+
+        private Resolution GetCroppedImageResolution(Bitmap original)
         {
             int widthDiff = original.Width - _defaultWidth;
             int heightDiff = original.Height - _defaultHeight;
@@ -147,6 +210,36 @@ namespace MeetingWebsite.Application.Services
                 res.Height = _defaultHeight;
             }
             return res;
+        }
+
+        private async Task<DomainImage> GetImageFromFormFileAsync(
+            IFormFile formFile, Action<MemoryStream> action)
+        {
+            DomainImage image = new();
+            using (MemoryStream stream = new())
+            {
+                await formFile.CopyToAsync(stream);
+                action(stream);
+
+                image.Bitmap = stream.ToArray();                
+                image.MimeType = formFile.ContentType;
+            }
+            return image;
+        }
+
+        private DomainImage GetImageFromFile(string filePath)
+        {
+            DomainImage image = new();
+
+            if (!File.Exists(filePath))
+                throw new FileNotFoundException($"File with path: {filePath} was not found");
+            using (MemoryStream stream = new(File.ReadAllBytes(filePath)))
+            {
+                CropImageInStream(stream);
+                image.Bitmap = stream.ToArray();
+                image.MimeType = _mimeType;
+            }
+            return image;
         }
 #pragma warning restore
 

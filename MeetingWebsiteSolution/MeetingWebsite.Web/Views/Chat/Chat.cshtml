@@ -22,9 +22,13 @@
                                     </span>
                                 </a>
                                 <div class="d-flex align-items-center">
-                                    <a class="link-secondary me-2">
+                                    <a class="link-secondary me-2" id="imageInputButton">
                                         <i class="fa-regular fa-image fa-2xl"></i>
                                     </a>
+                                    <form asp-controller="Image" asp-action="UploadImage"
+                                            id="uploadImageForm" enctype="multipart/form-data">
+                                        <input type="file" class="d-none" id="imageInput" name="file" />
+                                    </form>                                    
                                     <partial name="Buttons/GoBackButton" />
                                 </div>
                             </div>
@@ -32,25 +36,27 @@
                     </div>
                 </div>
             </div>
-            <div class="chat-main">
-                <div class="container">
+            <div class="chat-main" id="scroll">
+                <div class="container" id="scroll-height">
                     <div class="my-3 mx-3" id="chatContainer">
                     </div>
                 </div>
             </div>
             <div class="chat-footer px-4 py-2">
-                <div class="d-flex">
-                    <div class="me-2 flex-grow-1">
-                        <input class="form-control rounded-4"
-                            id="messageInput" placeholder="Enter message" />
+                <form id="sendForm">
+                    <div class="d-flex">                    
+                        <div class="me-2 flex-grow-1">
+                            <input class="form-control rounded-4"
+                                   id="messageInput" placeholder="Enter message" />
+                        </div>
+                        <div class="flex-grow-0">
+                            <button class="btn btn-primary rounded-4 h-100 px-5">
+                                <i class="fa-solid fa-paper-plane fa-xs me-2"></i>
+                                Send
+                            </button>
+                        </div>
                     </div>
-                    <div class="flex-grow-0">
-                        <button class="btn btn-primary rounded-4 h-100 px-5" id="sendButton">
-                            <i class="fa-solid fa-paper-plane fa-xs me-2"></i>
-                            Send
-                        </button>
-                    </div>
-                </div>                
+                </form>
             </div>
         </div>
     </div>

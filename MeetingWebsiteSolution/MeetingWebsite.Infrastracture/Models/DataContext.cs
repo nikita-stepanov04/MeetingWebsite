@@ -44,6 +44,10 @@ namespace MeetingWebsite.Infrastracture.Models
                         .HasForeignKey("UserId"));
 
             modelBuilder.Entity<User>()
+                .HasOne(u => u.Image).WithOne()
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<User>()
                 .Ignore(u => u.ImageLink);
 
             modelBuilder.Entity<FriendshipRequest>()
@@ -68,6 +72,14 @@ namespace MeetingWebsite.Infrastracture.Models
                 .HasOne(c => c.User2).WithMany()
                 .HasForeignKey(c => c.User2Id)
                 .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Message>()
+                .HasOne(m => m.Chat).WithMany(c => c.Messages)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<Image>()
+                .HasOne(i => i.Chat).WithMany(c => c.Images)
+                .OnDelete(DeleteBehavior.Cascade);
 
             modelBuilder.Entity<Message>()
                 .Ignore(c => c.ImageLink);

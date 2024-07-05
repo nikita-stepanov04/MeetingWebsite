@@ -1,11 +1,14 @@
 ﻿using MeetingWebsite.Domain.Interfaces;
-using DomainChat = MeetingWebsite.Domain.Models.Chat;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.SignalR;
 using MeetingWebsite.Domain.Models;
 using MeetingWebsite.Infrastracture.Models.Identity;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using System.Text.Json;
+using Microsoft.AspNetCore.Mvc.Abstractions;
+using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
+using Microsoft.AspNetCore.SignalR;
+using DomainChat = MeetingWebsite.Domain.Models.Chat;
+using MeetingWebsite.Web.Helpers;
 
 namespace MeetingWebsite.Web.Hubs.Chat
 {
@@ -14,19 +17,22 @@ namespace MeetingWebsite.Web.Hubs.Chat
     {
         private readonly IChatService _chatService;
         private readonly IUserService _userService;
+        private readonly IImageService _imageService;
         private readonly UserManager<AppUser> _userManager;
 
         public ChatHub(IChatService chatService,
             IUserService userService,
-            UserManager<AppUser> userManager)
+            UserManager<AppUser> userManager,
+            IImageService imageService)
         {
             _chatService = chatService;
             _userService = userService;
             _userManager = userManager;
+            _imageService = imageService;
         }
 
         public string ChatId => Context.Items["chatId"]!.ToString()!;
-        public long UserId => Convert.ToInt64(Context.Items["userId"]!);        
+        public long UserId => Convert.ToInt64(Context.Items["userId"]!);
 
         public override async Task OnConnectedAsync()
         {
@@ -48,7 +54,7 @@ namespace MeetingWebsite.Web.Hubs.Chat
                     Context.Items["userId"] = appUser.UserDataId;
                 }
                 else
-                    throw new HubException("User is not a chat owner");                
+                    throw new HubException("User is not a chat owner");
             }
             else
                 throw new HubException("Chat with specified id doesn't exist");
@@ -57,22 +63,25 @@ namespace MeetingWebsite.Web.Hubs.Chat
 
         public override async Task OnDisconnectedAsync(Exception? exception)
         {
-            await Groups.RemoveFromGroupAsync(Context.ConnectionId, ChatId);            
+            await Groups.RemoveFromGroupAsync(Context.ConnectionId, ChatId);
             await base.OnDisconnectedAsync(exception);
         }
 
-        public async Task SendMessageAsync(string text)
+        public async Task SendMessageAsync(Message message)
         {
-            long userId = UserId;
-            string chatId = ChatId;
-
-            Message message = new()
+            if (message.ImageId != null || message.Text != null)
             {
-                Text = text,
-                AuthorId = userId
-            };
-            await _chatService.AddMessageToChatAsync(message, Guid.Parse(chatId));
-            await Clients.Group(chatId).ReceiveMessageAsync(message);
+                long userId = UserId;
+                string chatId = ChatId;
+
+                message.AuthorId = userId;
+                message.CreatedAt = DateTime.UtcNow;
+
+                await _chatService.AddMessageToChatAsync(message, Guid.Parse(chatId));
+
+                PopulateMessageWithImageLink(message);
+                await Clients.Group(chatId).ReceiveMessageAsync(message);
+            }
         }
 
         public async Task LoadChatAsync()
@@ -80,6 +89,8 @@ namespace MeetingWebsite.Web.Hubs.Chat
             string chatId = ChatId;
             List<Message> messages = (await _chatService
                 .GetMessagesFromChat(Guid.Parse(chatId)) ?? new());
+
+            messages.ForEach(m => PopulateMessageWithImageLink(m));
             await Clients.Caller.LoadChatAsync(messages);
         }
 
@@ -87,6 +98,14 @@ namespace MeetingWebsite.Web.Hubs.Chat
         {
             await _chatService.SetMessageAsReadAsync(messageId);
             await Clients.Group(ChatId).SetMessageAsReadAsync(messageId);
+        }        
+
+        private void PopulateMessageWithImageLink(Message message)
+        {
+            if (message.ImageId != null)
+            {
+                message.ImageLink = ImageLinkHelper.GetImageUrl((long)message.ImageId);
+            }
         }
     }
 }

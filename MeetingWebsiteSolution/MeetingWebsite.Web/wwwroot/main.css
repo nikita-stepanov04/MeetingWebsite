@@ -87,3 +87,12 @@
 .chat-footer {
     flex: 0 1 auto;
 }
+
+.image-placeholder {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background: #d6d6d4;
+    border-radius: 1rem;
+    box-shadow: 0 5px 8px #bfbfbd;
+}

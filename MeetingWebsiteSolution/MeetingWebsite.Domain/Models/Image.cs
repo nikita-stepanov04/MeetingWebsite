@@ -11,5 +11,8 @@ namespace MeetingWebsite.Domain.Models
 
         [Required]
         public string? MimeType { get; set; }
+
+        public Guid? ChatId { get; set; }
+        public Chat? Chat { get; set; }
     }
 }

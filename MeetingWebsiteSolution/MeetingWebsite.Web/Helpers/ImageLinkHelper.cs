@@ -11,5 +11,7 @@ namespace MeetingWebsite.Web.Helpers
                 ? null
                 : helper.Action("GetImage", "Image", new { id = user.ImageId });
         }
+
+        public static string? GetImageUrl(long imageId) => $"/img/{imageId}";
     }
 }

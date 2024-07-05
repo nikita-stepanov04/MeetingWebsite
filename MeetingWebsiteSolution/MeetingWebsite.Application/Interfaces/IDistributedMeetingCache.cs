@@ -13,6 +13,8 @@ namespace MeetingWebsite.Application.Interfaces
 
         Task<User?> GetUserAsync(string prefix, long id);
 
+        Task<Image?> GetImageAsync(string prefix, long id);
+
         Task SetInterestsAsync(string prefix, IEnumerable<Interest> interests,
             TimeSpan? absoluteExpireTime = null,
             TimeSpan? unusedExpireTime = null);

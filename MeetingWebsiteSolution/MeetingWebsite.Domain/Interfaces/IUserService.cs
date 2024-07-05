@@ -11,7 +11,7 @@ namespace MeetingWebsite.Domain.Interfaces
 
         ValueTask<User> UpdateAsync(User entity);
 
-        ValueTask<User> DeleteAsync(User entity);
+        Task DeleteAsync(User entity);
 
         Task<IEnumerable<User>> FindUsersByFiltersAndPagingInfo(
             FilterInfo? filters, PagingInfo pagingInfo, IEnumerable<User> except);

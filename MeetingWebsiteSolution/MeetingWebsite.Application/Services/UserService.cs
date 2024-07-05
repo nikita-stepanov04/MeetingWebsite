@@ -8,17 +8,20 @@ namespace MeetingWebsite.Application.Services
     public class UserService : IUserService
     {
         private readonly IRepository<User, long> _userRepository;
+        private readonly IRepository<Chat, Guid> _chatRepository;
         private readonly IImageService _imageService;
         private readonly IDistributedMeetingCache _cache;
         private readonly string UserCachePrefix = "User";
 
         public UserService(IRepository<User, long> rep,
             IImageService imageService,
-            IDistributedMeetingCache cache)
+            IDistributedMeetingCache cache,
+            IRepository<Chat, Guid> chatRepository)
         {
             _userRepository = rep;
             _imageService = imageService;
             _cache = cache;
+            _chatRepository = chatRepository;
         }
 
         public async Task<User?> FindByIdAsync(long id)
@@ -56,8 +59,20 @@ namespace MeetingWebsite.Application.Services
             return _userRepository.UpdateAsync(entity);
         }
 
-        public ValueTask<User> DeleteAsync(User entity) =>
-            _userRepository.DeleteAsync(entity);
+        public async Task DeleteAsync(User entity)
+        {
+            List<Chat> userChats = await _chatRepository.GetQueryable()
+                .Where(u => u.User1Id == entity.UserId || u.User2Id == entity.UserId)
+                .ToListAsync();
+            userChats.ForEach(async c => await _chatRepository.DeleteAsync(c));
+            Image? image = await _imageService.FindByIdAsync((long)entity.ImageId!);
+            if (image != null)
+            {
+                await _imageService.Remove(image);
+            }
+            await _cache.RemoveRecordAsync(UserCachePrefix, entity.UserId);
+            await _userRepository.DeleteAsync(entity);
+        }
 
         public Task<int> SaveChangesAsync() =>
             _userRepository.SaveChangesAsync();

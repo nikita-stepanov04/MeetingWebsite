@@ -12,5 +12,6 @@
         public User? User2 { get; set; }
 
         public List<Message> Messages { get; set; } = [];
+        public List<Image> Images { get; set; } = [];
     }
 }

@@ -13,10 +13,14 @@ namespace MeetingWebsite.Domain.Interfaces
 
         Task<Image> CreateFromFormFileAsync(IFormFile formFile);
 
-        Task<Image> GetImageFromFormFileAsync(IFormFile formFile);
+        Task<Image> CreateFromFormFileCompressedOriginalAspectRatio(IFormFile formFile);
 
         Task<Image> UpdateFromFormFileAsync(Image image, IFormFile formFile);
 
-        Image GetImageFromFile(string filePath);
+        Task<Image?> GetImageInfoAsync(long imageId);
+
+        ValueTask<Image> Remove(Image image);
+
+        public Task<int> SaveChangesAsync();
     }
 }

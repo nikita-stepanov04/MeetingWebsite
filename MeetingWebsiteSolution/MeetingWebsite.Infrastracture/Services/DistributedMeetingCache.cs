@@ -44,7 +44,7 @@ namespace MeetingWebsite.Infrastracture.Services
                     return entity;
                 }
             }
-            return null;
+            return local;
         }
 
         public async Task<User?> GetUserAsync(string prefix, long id)
@@ -78,6 +78,27 @@ namespace MeetingWebsite.Infrastracture.Services
                 return null;
             }
             return local;            
+        }
+
+        public async Task<Image?> GetImageAsync(string prefix, long id)
+        {
+            Image? local = _context.Images.Local.FindEntry(id)?.Entity;
+            if (local == null)
+            {
+                string? json = await _cache.GetStringAsync(prefix);
+                if (json != null)
+                {
+                    Image? image = JsonConvert.DeserializeObject<Image>(json);
+                    if (image != null)
+                    {
+                        image.Chat = null;
+                        _context.Images.Attach(image);
+                    }
+                    return image;
+                }
+                return null;
+            }
+            return local;
         }
 
         public async Task SetInterestsAsync(string prefix, IEnumerable<Interest> interests,

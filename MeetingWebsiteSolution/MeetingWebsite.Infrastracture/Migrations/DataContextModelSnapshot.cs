@@ -82,11 +82,16 @@ namespace MeetingWebsite.Infrastracture.Migrations
                         .IsRequired()
                         .HasColumnType("varbinary(max)");
 
+                    b.Property<Guid?>("ChatId")
+                        .HasColumnType("uniqueidentifier");
+
                     b.Property<string>("MimeType")
                         .IsRequired()
                         .HasColumnType("nvarchar(max)");
 
                     b.HasKey("ImageId");
+
+                    b.HasIndex("ChatId");
 
                     b.ToTable("Images");
                 });
@@ -120,7 +125,7 @@ namespace MeetingWebsite.Infrastracture.Migrations
                     b.Property<long>("AuthorId")
                         .HasColumnType("bigint");
 
-                    b.Property<Guid?>("ChatId")
+                    b.Property<Guid>("ChatId")
                         .HasColumnType("uniqueidentifier");
 
                     b.Property<DateTime>("CreatedAt")
@@ -173,7 +178,9 @@ namespace MeetingWebsite.Infrastracture.Migrations
 
                     b.HasKey("UserId");
 
-                    b.HasIndex("ImageId");
+                    b.HasIndex("ImageId")
+                        .IsUnique()
+                        .HasFilter("[ImageId] IS NOT NULL");
 
                     b.ToTable("Users");
                 });
@@ -246,18 +253,33 @@ namespace MeetingWebsite.Infrastracture.Migrations
                     b.Navigation("Sender");
                 });
 
+            modelBuilder.Entity("MeetingWebsite.Domain.Models.Image", b =>
+                {
+                    b.HasOne("MeetingWebsite.Domain.Models.Chat", "Chat")
+                        .WithMany("Images")
+                        .HasForeignKey("ChatId")
+                        .OnDelete(DeleteBehavior.Cascade);
+
+                    b.Navigation("Chat");
+                });
+
             modelBuilder.Entity("MeetingWebsite.Domain.Models.Message", b =>
                 {
-                    b.HasOne("MeetingWebsite.Domain.Models.Chat", null)
+                    b.HasOne("MeetingWebsite.Domain.Models.Chat", "Chat")
                         .WithMany("Messages")
-                        .HasForeignKey("ChatId");
+                        .HasForeignKey("ChatId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Chat");
                 });
 
             modelBuilder.Entity("MeetingWebsite.Domain.Models.User", b =>
                 {
                     b.HasOne("MeetingWebsite.Domain.Models.Image", "Image")
-                        .WithMany()
-                        .HasForeignKey("ImageId");
+                        .WithOne()
+                        .HasForeignKey("MeetingWebsite.Domain.Models.User", "ImageId")
+                        .OnDelete(DeleteBehavior.Cascade);
 
                     b.Navigation("Image");
                 });
@@ -294,6 +316,8 @@ namespace MeetingWebsite.Infrastracture.Migrations
 
             modelBuilder.Entity("MeetingWebsite.Domain.Models.Chat", b =>
                 {
+                    b.Navigation("Images");
+
                     b.Navigation("Messages");
                 });
 #pragma warning restore 612, 618
