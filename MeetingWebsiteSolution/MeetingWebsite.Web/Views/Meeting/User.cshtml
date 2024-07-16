@@ -43,44 +43,7 @@
             </div>
             <div class="row mt-4">
                 <div class="col-4">
-                    @if (!Model.FriendhipInfo.AreFriends)
-                    {
-                        if (Model.FriendhipInfo.RequestSent)
-                        {
-                            <partial name="Buttons/CancelFriendshipRequestButton" for="User" />
-                        }
-                        else if (Model.FriendhipInfo.RequestReceived)
-                        {
-                            <div class="d-flex">
-                                <form asp-controller="Meeting" asp-action="AcceptFriendshipRequest" class="flex-grow-1">
-                                    <input type="hidden" name="senderId" asp-for="User.UserId" />
-                                    <div class="d-grid">
-                                        <button type="submit" class="btn btn-sm btn-primary me-1">
-                                            <i class="fa-solid fa-check pe-1"></i>
-                                            Accept
-                                        </button>
-                                    </div>
-                                </form>
-                                <form asp-controller="Meeting" asp-action="RejectFriendshipRequest" class="flex-grow-1">
-                                    <input type="hidden" name="senderId" asp-for="User.UserId" />
-                                    <div class="d-grid">
-                                        <button type="submit" class="btn btn-sm btn-danger">
-                                            <i class="fa-solid fa-xmark pe-1"></i>
-                                            Reject
-                                        </button>
-                                    </div>
-                                </form>
-                            </div>
-                        }
-                        else
-                        {
-                            <partial name="Buttons/AddToFriendsButton" for="User" />
-                        }
-                    }
-                    else
-                    {
-                        <partial name="Buttons/DeleteFromFriendsButton" for="User" />
-                    }
+                    <partial name="Buttons/ButtonPlaceholder" for="User" />
                 </div>
                 <div class="col-4">
                     <partial name="Buttons/SendMessageButton" for="User">

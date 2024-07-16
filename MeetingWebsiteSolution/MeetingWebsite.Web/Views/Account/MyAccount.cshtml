@@ -69,8 +69,8 @@
     <div class="main-block h-100 px-2">
         <div class="overflow-y-auto" style="max-height: 40rem;">
             <h5 class="text-center mb-4">Friendship requests</h5>
-            <div class="container-fluid">
-                @foreach(User sender in Model.Senders ?? [])
+            <div class="container-fluid" id="friendship-requests-container">
+                @* @foreach(User sender in Model.Senders ?? [])
                 {
                     <div class="row main-block py-1 px-0 mb-3" style="background-color: #ebeced">
                         <div class="col overflow-auto">
@@ -94,8 +94,10 @@
                             <partial name="Buttons/AcceptRejectFriendshipRequestButton" model="@sender" />
                         </div>
                     </div>
-                }
+                } *@
             </div>
         </div>
     </div>
 </div>
+
+<script src="~/js/friendshiprequests.js"></script>

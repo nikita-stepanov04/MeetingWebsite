@@ -33,25 +33,7 @@
                                         ? $"{user.Gender} gender" : user.Gender)
                                 </div>
                                 <div class="d-grid mt-2" style="margin: -0.5rem;">
-                                    @if (!Model.FriendsIds.Contains(user.UserId))
-                                    {
-                                        if (Model.SentFriendshipRequestsReceiversIds.Contains(user.UserId))
-                                        {
-                                            <partial name="Buttons/CancelFriendshipRequestButton" model="@user" />
-                                        }
-                                        else if (Model.FriendshipRequestSendersIds.Contains(user.UserId))
-                                        {
-                                            <partial name="Buttons/AcceptRejectFriendshipRequestButton" model="@user" />
-                                        }
-                                        else
-                                        {
-                                            <partial name="Buttons/AddToFriendsButton" model="@user" />
-                                        }
-                                    } 
-                                    else 
-                                    {
-                                        <partial name="Buttons/DeleteFromFriendsButton" model="@user" />
-                                    }
+                                    <partial name="Buttons/ButtonPlaceholder" model="@user" />
                                 </div>
                             </div>
                         </div>

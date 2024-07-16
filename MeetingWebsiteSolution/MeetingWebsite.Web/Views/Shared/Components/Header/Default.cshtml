@@ -18,8 +18,9 @@
                 <a asp-controller="Account" asp-action="MyAccount" class="position-relative">
                     <img src=@(Model.ImageUrl ?? "/img/avatar.png") width="40" height="40" 
                         class="d-inline-block align-text-top object-fit-cover rounded-5 ms-3" />
-                    <span class="position-absolute translate-middle badge rounded-pill bg-danger"                          
-                          style="top: 20%; left: 85%;">
+                    <span class="position-absolute translate-middle badge rounded-pill bg-danger"  
+                            id="friendship-requests-count" 
+                            style="top: 20%; left: 85%;">
                         @Model.FriendshipRequestsNumber
                     </span>
                 </a>
@@ -27,3 +28,5 @@
         </div>
     </nav>
 </header>
+
+<script src="~/js/friendship.js"></script>

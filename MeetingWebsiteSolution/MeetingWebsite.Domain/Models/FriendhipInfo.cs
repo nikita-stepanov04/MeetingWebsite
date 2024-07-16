@@ -1,10 +1,8 @@
 ﻿namespace MeetingWebsite.Domain.Models
 {
-    public class FriendhipInfo
+    public class FriendshipInfo
     {
-        public bool AreFriends { get; set; }
-        public bool RequestReceived { get; set; }
-        public bool RequestSent { get; set; }
-        public FriendshipRequest? Request { get; set; }
+        public long UserId { get; set; }
+        public FriendshipStatus FriendshipStatus { get; set; }
     }
 }

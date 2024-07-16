@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MeetingWebsite.Infrastracture.Migrations.Identity
 {
     [DbContext(typeof(IdentityContext))]
-    [Migration("20240705210017_Initial")]
+    [Migration("20240712182010_Initial")]
     partial class Initial
     {
         /// <inheritdoc />

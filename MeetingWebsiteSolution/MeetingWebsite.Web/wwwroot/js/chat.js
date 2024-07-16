@@ -28,7 +28,6 @@ const sentImagesPlaceholders = new Map();
 async function start() {
     try {
         await _connection.start();
-        console.log(`SignalR Connected to ${chatUrl}?chatId=${encodeURIComponent(chatId)}`);
     } catch (err) {
         console.log(err);
         setTimeout(start, 5000);

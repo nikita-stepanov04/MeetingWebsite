@@ -18,6 +18,6 @@ namespace MeetingWebsite.Domain.Interfaces
 
         Task<IEnumerable<FriendshipRequest>> GetSentRequestsAsync(User sender);
 
-        Task<FriendhipInfo> GetFriendhipInfo(User user, User friend);
+        Task<IEnumerable<FriendshipInfo>> GetFriendshipStatus(long userId, params long[] ids);
     }
 }

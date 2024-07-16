@@ -1,14 +1,11 @@
 ﻿using MeetingWebsite.Domain.Interfaces;
 using MeetingWebsite.Domain.Models;
 using MeetingWebsite.Infrastracture.Models.Identity;
+using MeetingWebsite.Web.Helpers;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Identity;
-using Microsoft.AspNetCore.Mvc.Abstractions;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.SignalR;
 using DomainChat = MeetingWebsite.Domain.Models.Chat;
-using MeetingWebsite.Web.Helpers;
 
 namespace MeetingWebsite.Web.Hubs.Chat
 {
@@ -98,7 +95,7 @@ namespace MeetingWebsite.Web.Hubs.Chat
         {
             await _chatService.SetMessageAsReadAsync(messageId);
             await Clients.Group(ChatId).SetMessageAsReadAsync(messageId);
-        }        
+        }
 
         private void PopulateMessageWithImageLink(Message message)
         {

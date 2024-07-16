@@ -126,31 +126,52 @@ namespace MeetingWebsite.Application.Services
                 .Where(fr => fr.SenderId == sender.UserId)
                 .ToListAsync();
 
-        public async Task<FriendhipInfo> GetFriendhipInfo(User user, User friend)
+        public async Task<IEnumerable<FriendshipInfo>> GetFriendshipStatus(
+            long userId, params long[] ids)
         {
-            FriendhipInfo info = new();
-            if (!user.Friends?.Select(u => u.UserId).Contains(friend.UserId) == true)
+            var friendshipInfos = new List<FriendshipInfo>();
+            foreach (long id in ids)
             {
-                FriendshipRequest? request = await GetNonPopulatedFriendshipRequest(
-                    user.UserId, friend.UserId);
-                if (request != null)
+                var friendshipInfo = await GetFriendhipInfo(userId, id);
+                friendshipInfos.Add(friendshipInfo);
+            }
+            return friendshipInfos;
+        }
+
+
+        private async Task<FriendshipInfo> GetFriendhipInfo(long userId, long friendId)
+        {
+            User? user = await FindByIdAsync(userId);
+            User? friend = await FindByIdAsync(friendId);
+
+            FriendshipStatus status;
+            if (user != null && friend != null)
+            {                
+                if (user.Friends?.Select(u => u.UserId).Contains(friend.UserId) == false)
                 {
-                    info.RequestSent = true;
-                    info.Request = request;
-                }
-                else
-                {
-                    request = await GetNonPopulatedFriendshipRequest(friend.UserId, user.UserId);
+                    FriendshipRequest? request = await GetNonPopulatedFriendshipRequest(
+                        user.UserId, friend.UserId);
                     if (request != null)
+                        status = FriendshipStatus.RequestSent;
+                    else
                     {
-                        info.RequestReceived = true;
-                        info.Request = request;
+                        request = await GetNonPopulatedFriendshipRequest(friend.UserId, user.UserId);
+                        if (request != null)
+                            status = FriendshipStatus.PendingAcceptance;
+                        else
+                            status = FriendshipStatus.NotAFriend;
                     }
                 }
+                else
+                    status = FriendshipStatus.Friend;
             }
             else
-                info.AreFriends = true;
-            return info;
+                status = FriendshipStatus.NotAFriend;
+            return new FriendshipInfo
+            {
+                UserId = friendId,
+                FriendshipStatus = status
+            };
         }
 
         private async Task<FriendshipRequest?> GetNonPopulatedFriendshipRequest(

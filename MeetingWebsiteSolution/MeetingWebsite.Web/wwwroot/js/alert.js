@@ -5,17 +5,20 @@
     }
 });
 
-function showAlert(message) {
+function showAlert(message, type) {
+    console.log(message, type)
     const alertContainer = document.getElementById('liveAlertPlaceholder');
     const alertBox = document.getElementById('alertBox');
+    const alertMessage = document.getElementById("alertMessage");
 
     alertContainer.classList.remove('alert-hide');
     alertContainer.classList.add('alert-show');
     alertContainer.style.display = 'block';
 
-    setTimeout(() => {
-        hideAlert();
-    }, 2000);
+    alertBox.classList.add(`alert-${type}`);
+    alertMessage.textContent = message
+
+    setTimeout(() =>  hideAlert(), 2000);
 }
 
 function hideAlert() {

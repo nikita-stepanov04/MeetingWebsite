@@ -12,7 +12,7 @@ using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 namespace MeetingWebsite.Infrastracture.Migrations
 {
     [DbContext(typeof(DataContext))]
-    [Migration("20240705210010_Initial")]
+    [Migration("20240712182003_Initial")]
     partial class Initial
     {
         /// <inheritdoc />
