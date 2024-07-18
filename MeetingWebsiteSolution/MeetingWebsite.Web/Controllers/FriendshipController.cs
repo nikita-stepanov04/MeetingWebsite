@@ -51,6 +51,7 @@ namespace MeetingWebsite.Web.Controllers
                 request.Receiver = null;
                 request.Sender.Interests = null;
                 request.Sender.Friends = null;
+                request.Sender.ImageLink = Url.GetImageUrl(request.Sender);
             }
             return Ok(requests);
         }

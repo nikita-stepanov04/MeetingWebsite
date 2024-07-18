@@ -1,10 +1,10 @@
 async function updateFriendshipRequests() {
-    const friendshipRequestContainer = document.getElementById('friendship-requests-container');
     const requests = await getFriendshipRequests();
 
-    requests.forEach(request => {
-        friendshipRequestContainer.innerHTML += getFriendshipRequestTemplate(request.sender);
-    });
+    for (const request of requests) {
+        const user = request.sender;
+        renderFriendshipRequest(user);
+    }
 }
 
 async function getFriendshipRequests() {

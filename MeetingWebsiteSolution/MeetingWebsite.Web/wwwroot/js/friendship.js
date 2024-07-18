@@ -1,8 +1,8 @@
-const baseUrl = 'https://localhost:5001';
-const friendshipHubUrl = `${baseUrl}/friendships`;
+const friendshipHubUrl = `/friendships`;
 let _connection;
 
 let friendshipRequestCountInput;
+let friendshipRequestContainer;
 
 async function start() {
     try {
@@ -19,7 +19,6 @@ async function buildConnection() {
         .build();
 
     _connection.on('UpdateFriendshipRequestsCountAsync', count => {
-        console.log(friendshipRequestCountInput)
         friendshipRequestCountInput.textContent = count
     });
 
@@ -56,26 +55,38 @@ async function updateFriendshipButtonByStatus(statusList) {
         }
     });
 
-    const friendshipRequestContainer = document.getElementById('friendship-requests-container');
     if (friendshipRequestContainer) {
         const status = statusList[0];
         if (status.friendshipStatus === 'PendingAcceptance'){
             const user = await getUser(status.userId);
-            friendshipRequestContainer.innerHTML += getFriendshipRequestTemplate(user, true);
-            document.getElementById(`friendship-button-${status.userId}-accept`).onclick =
-                async () => {
-                    await acceptFriendshipRequest(status.userId);
-                    removeRequest(status.userId);
-                };
-            document.getElementById(`friendship-button-${status.userId}-reject`).onclick =
-                async () => {
-                    await rejectFriendshipRequest(status.userId);
-                    removeRequest(status.userId);
-                };
+            renderFriendshipRequest(user);
         }
         else if (status.friendshipStatus === 'NotAFriend') {
            removeRequest(status.userId);
         }
+    }
+}
+
+function renderFriendshipRequest(user) {
+    const friendshipRequestElement = document.createElement('div');
+    friendshipRequestElement.innerHTML = getFriendshipRequestTemplate(user, true);
+
+    const acceptButton = friendshipRequestElement.querySelector(`#friendship-button-${user.userId}-accept`);
+    const rejectButton = friendshipRequestElement.querySelector(`#friendship-button-${user.userId}-reject`);
+
+    acceptButton.onclick = async () => await accept(user.userId);
+    rejectButton.onclick = async () => await reject(user.userId);
+
+    friendshipRequestContainer.appendChild(friendshipRequestElement);
+
+    async function accept(userId) {
+        await acceptFriendshipRequest(userId);
+        removeRequest(userId);
+    }
+
+    async function reject(userId) {
+        await rejectFriendshipRequest(userId);
+        removeRequest(userId);
     }
 }
 
@@ -202,6 +213,7 @@ async function removeFromFriends(id) {
 }
 
 async function acceptFriendshipRequest(id) {
+    console.log('accepting')
     await _connection.invoke("AcceptFriendshipRequestAsync", id);
 }
 
@@ -215,6 +227,7 @@ async function cancelFriendshipRequest(id) {
 
 document.addEventListener("DOMContentLoaded", async () => {
     friendshipRequestCountInput = document.getElementById('friendship-requests-count');
+    friendshipRequestContainer = document.getElementById('friendship-requests-container');
 
     await buildConnection();
     await start();

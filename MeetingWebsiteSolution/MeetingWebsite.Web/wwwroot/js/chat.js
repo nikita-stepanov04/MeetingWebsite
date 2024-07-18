@@ -7,9 +7,8 @@ const imageInputButton = document.getElementById('imageInputButton');
 const imageInput = document.getElementById('imageInput');
 const uploadImageForm = document.getElementById('uploadImageForm');
 
-const baseUrl = 'https://localhost:5001';
-const chatUrl = `${baseUrl}/wsChat`;
-const uploadImageUrl = `${baseUrl}/img/upload`;
+const chatUrl = `/wsChat`;
+const uploadImageUrl = `/img/upload`;
 
 const chatId = document.getElementById('chatIdInput').value;
 
@@ -22,24 +21,24 @@ const user2ImageLink = document.getElementById('user2ImageLinkInput').value;
 const user2Firstname = document.getElementById('user2FirstnameInput').value;
 const user2Secondname = document.getElementById('user2SecondnameInput').value;
 
-let _connection;
+let _chatConnection;
 const sentImagesPlaceholders = new Map();
 
-async function start() {
+async function startChat() {
     try {
-        await _connection.start();
+        await _chatConnection.start();
     } catch (err) {
         console.log(err);
-        setTimeout(start, 5000);
+        setTimeout(startChat, 5000);
     }
 }
 
-async function buildConnection() {
-    _connection = new signalR.HubConnectionBuilder()
+async function buildChatConnection() {
+    _chatConnection = new signalR.HubConnectionBuilder()
         .withUrl(`${chatUrl}?chatId=${encodeURIComponent(chatId)}`)
         .build();
 
-    _connection.on("ReceiveMessageAsync", async message => {
+    _chatConnection.on("ReceiveMessageAsync", async message => {
         await renderMessage(message, true);
         if (message.authorId != user1Id) {
             observer.observe(document.getElementById(`message-${message.messageId}`));
@@ -47,14 +46,14 @@ async function buildConnection() {
         scrollToEnd(true);
     });
 
-    _connection.on("LoadChatAsync", async messages => {
+    _chatConnection.on("LoadChatAsync", async messages => {
         await renderMessages(messages)
         document.querySelectorAll('.tracking-message')
             .forEach(message => observer.observe(message));
         scrollToEnd()
     });
 
-    _connection.on("SetMessageAsReadAsync", messageId => {
+    _chatConnection.on("SetMessageAsReadAsync", messageId => {
         document.getElementById(`message-check-${messageId}`).classList.add('text-primary');
     });
 }
@@ -74,11 +73,9 @@ function renderMessages(messages) {
 }
 
 async function markMessageAsRead(messageBlockId) {
-    console.log(messageBlockId);
     const messageId = messageBlockId.split('-')[1];
     if (!isNaN(parseInt(messageId))) {
-        console.log(messageId)
-        await _connection.invoke("SetMessageAsReadAsync", JSON.parse(messageId));
+        await _chatConnection.invoke("SetMessageAsReadAsync", JSON.parse(messageId));
     }
 }
 
@@ -95,7 +92,7 @@ async function sendMessage() {
     const message = {};
     message.text = messageInput.value;
     if (message.text) {
-        await _connection.invoke("SendMessageAsync", message);
+        await _chatConnection.invoke("SendMessageAsync", message);
         messageInput.value = '';
     }    
 }
@@ -153,7 +150,7 @@ async function sendImage() {
 
             const message = {};
             message.imageId = imgId;
-            await _connection.invoke("SendMessageAsync", message);
+            await _chatConnection.invoke("SendMessageAsync", message);
         }
     })
 }
@@ -257,8 +254,8 @@ const observer = new IntersectionObserver((entries, observer) => {
 }, observerOptions);
 
 document.addEventListener("DOMContentLoaded", async () => {
-    await buildConnection();
-    await start();
+    await buildChatConnection();
+    await startChat();
 
     sendForm.addEventListener("submit", (event) => {
         event.preventDefault();
@@ -275,5 +272,5 @@ document.addEventListener("DOMContentLoaded", async () => {
         }
     });
 
-    await _connection.invoke("LoadChatAsync");
+    await _chatConnection.invoke("LoadChatAsync");
 });
