@@ -1,0 +1,30 @@
+version: '3.4'
+
+services:
+  web:
+    networks:
+      - internet
+    depends_on:
+      - postgres
+      - redis
+
+  postgres:
+    container_name: postgres
+    image: postgres:alpine
+    restart: always
+    environment:
+      - POSTGRES_PASSWORD=${DB_PASSWORD}
+      - POSTGRES_DB=${DB_NAME}
+    ports:
+      - 5432:5432
+    networks:
+      - internet
+
+  redis:
+    ports:
+      - 6379:6379
+    networks:
+      - internet
+
+networks:
+  internet:

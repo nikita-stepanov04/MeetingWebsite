@@ -1,0 +1,39 @@
+version: '3.4'
+
+services:
+  web:
+    container_name: web
+    image: stepanov.azurecr.io/meeting-website
+    build:
+      context: .
+      dockerfile: MeetingWebsite.Web/Dockerfile
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_HTTP_PORTS=8080
+      - DB_HOST=${DB_HOST}
+      - DB_NAME=${DB_NAME}
+      - DB_USER=${DB_USER}
+      - DB_PASSWORD=${DB_PASSWORD}
+      - JWT_SECRET=${JWT_SECRET}
+      - REDIS_HOST=${REDIS_HOST}
+    ports:
+      - 8080:8080
+    networks:
+      - internet
+      - localnet
+    depends_on:
+      - redis
+
+  redis:
+    container_name: redis
+    image: redis:alpine
+    expose:
+      - "6379"
+    environment:
+      - REDIS_SAVE=""
+    networks:
+      - localnet
+
+networks:
+  localnet:
+  internet:

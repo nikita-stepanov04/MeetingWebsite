@@ -6,14 +6,7 @@
         public int CurrentPage 
         {
             get => currentPage;
-            set
-            {
-                if (value < 1)
-                {
-                    value = 1;
-                }
-                currentPage = value;
-            }
+            set => currentPage = value < 1 ? 1 : value;            
         }
         public int TotalPages { get; set; }
         public int ItemsPerPage { get; set; } = 6;

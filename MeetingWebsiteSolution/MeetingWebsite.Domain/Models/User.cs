@@ -15,7 +15,7 @@ namespace MeetingWebsite.Domain.Models
         [StringLength(30, MinimumLength = 2, ErrorMessage = "Secondname must be from 2 to 30 signs long")]
         public string Secondname { get; set; } = string.Empty;
 
-        [Column(TypeName = "nvarchar(10)")]
+        [Column(TypeName = "varchar(10)")]
         public UserGender Gender { get; set; }
         public DateOnly Birthday { get; set; }
         public IEnumerable<User>? Friends { get; set; }

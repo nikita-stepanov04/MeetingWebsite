@@ -2,6 +2,7 @@
 using MeetingWebsite.Domain.Interfaces;
 using MeetingWebsite.Domain.Models;
 using Microsoft.EntityFrameworkCore;
+using static System.Math;
 
 namespace MeetingWebsite.Application.Services
 {
@@ -9,6 +10,7 @@ namespace MeetingWebsite.Application.Services
     {
         private readonly IRepository<User, long> _userRepository;
         private readonly IRepository<Chat, Guid> _chatRepository;
+        private readonly IFriendshipService _frindshipService;
         private readonly IImageService _imageService;
         private readonly IDistributedMeetingCache _cache;
         private readonly string UserCachePrefix = "User";
@@ -16,12 +18,14 @@ namespace MeetingWebsite.Application.Services
         public UserService(IRepository<User, long> rep,
             IImageService imageService,
             IDistributedMeetingCache cache,
-            IRepository<Chat, Guid> chatRepository)
+            IRepository<Chat, Guid> chatRepository,
+            IFriendshipService frindshipService)
         {
             _userRepository = rep;
             _imageService = imageService;
             _cache = cache;
             _chatRepository = chatRepository;
+            _frindshipService = frindshipService;
         }
 
         public async Task<User?> FindByIdAsync(long id)
@@ -65,11 +69,18 @@ namespace MeetingWebsite.Application.Services
                 .Where(u => u.User1Id == entity.UserId || u.User2Id == entity.UserId)
                 .ToListAsync();
             userChats.ForEach(async c => await _chatRepository.DeleteAsync(c));
+
             Image? image = await _imageService.FindByIdAsync((long)entity.ImageId!);
             if (image != null)
             {
                 await _imageService.Remove(image);
             }
+
+            var friendshipRequests = await _frindshipService.GetFriendshipRequestsAsync(entity);
+            var sentfriendshipRequests = await _frindshipService.GetSentRequestsAsync(entity);
+            await _frindshipService.RejectFriendshipRequestsAsync(
+                friendshipRequests.Concat(sentfriendshipRequests));
+
             await _cache.RemoveRecordAsync(UserCachePrefix, entity.UserId);
             await _userRepository.DeleteAsync(entity);
         }
@@ -93,9 +104,11 @@ namespace MeetingWebsite.Application.Services
             }
 
             long usersCount = await users.CountAsync();
-            pagingInfo.TotalPages = (int)Math.Ceiling(usersCount / (double)pagingInfo.ItemsPerPage);
+            pagingInfo.TotalPages = (int)Ceiling(usersCount / (double)pagingInfo.ItemsPerPage);
+            pagingInfo.CurrentPage = Min(pagingInfo.CurrentPage, pagingInfo.TotalPages);
 
-            return await users.OrderBy(u => u.Firstname)
+            return await users
+                .OrderBy(u => u.Firstname)
                 .ThenBy(u => u.Secondname)
                 .ThenBy(u => u.Birthday)
                 .Skip((pagingInfo.CurrentPage - 1) * pagingInfo.ItemsPerPage)

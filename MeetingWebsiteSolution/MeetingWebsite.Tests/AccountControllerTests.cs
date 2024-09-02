@@ -17,6 +17,7 @@ namespace MeetingWebsite.Tests
         private Mock<IUserService> _userDataServiceMock;
         private Mock<IInterestService> _interestServiceMock;
         private Mock<IImageService> _imageServiceMock;
+        private Mock<IFriendshipService> _friendhsipServiceMock;
         private Mock<IConfiguration> _configMock;
         private Mock<IHttpContextAccessor> _httpContextAccessorMock;
 
@@ -59,6 +60,7 @@ namespace MeetingWebsite.Tests
             _userDataServiceMock = new Mock<IUserService>();
             _interestServiceMock = new Mock<IInterestService>();
             _imageServiceMock = new Mock<IImageService>();
+            _friendhsipServiceMock = new Mock<IFriendshipService>();
             _configMock = new Mock<IConfiguration>();
             _httpContextAccessorMock = new Mock<IHttpContextAccessor>();
 
@@ -71,7 +73,8 @@ namespace MeetingWebsite.Tests
                 _configMock.Object,
                 _userDataServiceMock.Object,
                 _interestServiceMock.Object,
-                _imageServiceMock.Object
+                _imageServiceMock.Object,
+                _friendhsipServiceMock.Object
             )
             {
                 ControllerContext = new ControllerContext()

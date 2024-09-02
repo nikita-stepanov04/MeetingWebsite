@@ -1,5 +1,6 @@
 ﻿using MeetingWebsite.Domain.Interfaces;
 using MeetingWebsite.Domain.Models;
+using MeetingWebsite.Infrastracture.Models;
 using MeetingWebsite.Infrastracture.Models.Identity;
 using MeetingWebsite.Web.Models;
 using MeetingWebsite.Web.Models.ViewModels;
@@ -50,7 +51,7 @@ namespace MeetingWebsite.Web.Controllers
                 {
                     var expires = DateTime.UtcNow.AddHours(2);
                     string token = IdentityServices.GenerateToken(
-                        model.Username!, _config["JwtSecret"]!, expires);
+                        model.Username!, _config["JwtSecret"].InjectEnvironmentVariables()!, expires);
                     IdentityServices.SetTokenCookie(token, Response, expires);
                     return RedirectToAction("Index", "Meeting");
                 }
@@ -177,7 +178,7 @@ namespace MeetingWebsite.Web.Controllers
 
                             var expires = DateTime.UtcNow.AddHours(2);
                             string token = IdentityServices.GenerateToken(
-                                appUser.UserName!, _config["JwtSecret"]!, expires);
+                                appUser.UserName!, _config["JwtSecret"].InjectEnvironmentVariables()!, expires);
                             IdentityServices.SetTokenCookie(token, Response, expires);
                         }
                         else
@@ -213,7 +214,6 @@ namespace MeetingWebsite.Web.Controllers
                 if (user != null)
                 {
                     await _userDataService.DeleteAsync(user);
-                    await _userDataService.SaveChangesAsync();
                 }
                 await _userManager.DeleteAsync(appUser);
                 await _singInManager.SignOutAsync();

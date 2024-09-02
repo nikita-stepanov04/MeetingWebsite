@@ -108,6 +108,15 @@ namespace MeetingWebsite.Application.Services
             return false;
         }
 
+        public async Task RejectFriendshipRequestsAsync(IEnumerable<FriendshipRequest> requests)
+        {        
+            foreach(var req in requests)
+            {
+                await _repository.DeleteAsync(req);
+            }            
+            await _repository.SaveChangesAsync();
+        }
+
         public async Task<IEnumerable<FriendshipRequest>> GetFriendshipRequestsAsync(User receiver) =>
             await _repository.GetQueryable()
                 .Include(fr => fr.Sender)

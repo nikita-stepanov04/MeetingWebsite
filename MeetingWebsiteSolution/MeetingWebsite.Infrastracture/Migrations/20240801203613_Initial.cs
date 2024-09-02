@@ -1,5 +1,6 @@
 ﻿using System;
 using Microsoft.EntityFrameworkCore.Migrations;
+using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
 #nullable disable
 
@@ -16,8 +17,8 @@ namespace MeetingWebsite.Infrastracture.Migrations
                 columns: table => new
                 {
                     InterestId = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    InterestType = table.Column<string>(type: "nvarchar(10)", maxLength: 10, nullable: false)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    InterestType = table.Column<string>(type: "character varying(10)", maxLength: 10, nullable: false)
                 },
                 constraints: table =>
                 {
@@ -28,8 +29,8 @@ namespace MeetingWebsite.Infrastracture.Migrations
                 name: "Chats",
                 columns: table => new
                 {
-                    ChatId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    ChatName = table.Column<string>(type: "nvarchar(max)", nullable: false),
+                    ChatId = table.Column<Guid>(type: "uuid", nullable: false),
+                    ChatName = table.Column<string>(type: "text", nullable: false),
                     User1Id = table.Column<long>(type: "bigint", nullable: false),
                     User2Id = table.Column<long>(type: "bigint", nullable: false)
                 },
@@ -43,10 +44,10 @@ namespace MeetingWebsite.Infrastracture.Migrations
                 columns: table => new
                 {
                     ImageId = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Bitmap = table.Column<byte[]>(type: "varbinary(max)", nullable: false),
-                    MimeType = table.Column<string>(type: "nvarchar(max)", nullable: false),
-                    ChatId = table.Column<Guid>(type: "uniqueidentifier", nullable: true)
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Bitmap = table.Column<byte[]>(type: "bytea", nullable: false),
+                    MimeType = table.Column<string>(type: "text", nullable: false),
+                    ChatId = table.Column<Guid>(type: "uuid", nullable: true)
                 },
                 constraints: table =>
                 {
@@ -64,12 +65,12 @@ namespace MeetingWebsite.Infrastracture.Migrations
                 columns: table => new
                 {
                     MessageId = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    ChatId = table.Column<Guid>(type: "uniqueidentifier", nullable: false),
-                    Text = table.Column<string>(type: "nvarchar(1024)", maxLength: 1024, nullable: true),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    ChatId = table.Column<Guid>(type: "uuid", nullable: false),
+                    Text = table.Column<string>(type: "character varying(1024)", maxLength: 1024, nullable: true),
                     AuthorId = table.Column<long>(type: "bigint", nullable: false),
-                    CreatedAt = table.Column<DateTime>(type: "datetime2", nullable: false),
-                    IsRead = table.Column<bool>(type: "bit", nullable: false),
+                    CreatedAt = table.Column<DateTime>(type: "timestamp with time zone", nullable: false),
+                    IsRead = table.Column<bool>(type: "boolean", nullable: false),
                     ImageId = table.Column<long>(type: "bigint", nullable: true)
                 },
                 constraints: table =>
@@ -88,10 +89,10 @@ namespace MeetingWebsite.Infrastracture.Migrations
                 columns: table => new
                 {
                     UserId = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
-                    Firstname = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    Secondname = table.Column<string>(type: "nvarchar(30)", maxLength: 30, nullable: false),
-                    Gender = table.Column<string>(type: "nvarchar(10)", nullable: false),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
+                    Firstname = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    Secondname = table.Column<string>(type: "character varying(30)", maxLength: 30, nullable: false),
+                    Gender = table.Column<string>(type: "varchar(10)", nullable: false),
                     Birthday = table.Column<DateOnly>(type: "date", nullable: false),
                     ImageId = table.Column<long>(type: "bigint", nullable: true)
                 },
@@ -111,7 +112,7 @@ namespace MeetingWebsite.Infrastracture.Migrations
                 columns: table => new
                 {
                     RequestId = table.Column<long>(type: "bigint", nullable: false)
-                        .Annotation("SqlServer:Identity", "1, 1"),
+                        .Annotation("Npgsql:ValueGenerationStrategy", NpgsqlValueGenerationStrategy.IdentityByDefaultColumn),
                     SenderId = table.Column<long>(type: "bigint", nullable: false),
                     ReceiverId = table.Column<long>(type: "bigint", nullable: false)
                 },
@@ -146,7 +147,8 @@ namespace MeetingWebsite.Infrastracture.Migrations
                         name: "FK_UserFriend_Users_FriendId",
                         column: x => x.FriendId,
                         principalTable: "Users",
-                        principalColumn: "UserId");
+                        principalColumn: "UserId",
+                        onDelete: ReferentialAction.Cascade);
                     table.ForeignKey(
                         name: "FK_UserFriend_Users_UserId",
                         column: x => x.UserId,
@@ -223,8 +225,7 @@ namespace MeetingWebsite.Infrastracture.Migrations
                 name: "IX_Users_ImageId",
                 table: "Users",
                 column: "ImageId",
-                unique: true,
-                filter: "[ImageId] IS NOT NULL");
+                unique: true);
 
             migrationBuilder.AddForeignKey(
                 name: "FK_Chats_Users_User1Id",

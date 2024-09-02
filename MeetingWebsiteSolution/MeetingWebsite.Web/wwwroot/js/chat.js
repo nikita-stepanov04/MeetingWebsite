@@ -110,7 +110,7 @@ function renderImageMessage(message, scroll) {
         placeholderId = sentImagesPlaceholders.get(message.imageId);
         sentImagesPlaceholders.delete(message.imageId);
     } else {
-        placeholderId = renderPlaceholder(message.authorId == user1Id);
+        placeholderId = renderPlaceholder(message.authorId != user1Id);
     }
     chatContainer.innerHTML += message.authorId == user1Id
         ? getImageTemplate(user1ImageLink, user1Firstname, user1Secondname, message, false)
@@ -182,9 +182,9 @@ function getImagePlaceholderTemplate(id, left) {
         </div>
     `;
     return getBasicTemplate(
-        user1ImageLink,
-        user1Firstname,
-        user1Secondname,
+        left ? user2ImageLink : user1ImageLink,
+        left ? user2Firstname : user1Firstname,
+        left ? user2Secondname : user1Secondname,
         id,
         false,
         placeholder,

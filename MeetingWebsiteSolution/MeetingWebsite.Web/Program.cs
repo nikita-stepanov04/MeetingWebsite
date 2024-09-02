@@ -40,9 +40,12 @@ namespace MeetingWebsite.Web
             builder.Services.AddScoped<IImageService, ImageService>();            
             builder.Services.AddScoped<IFriendshipService, FriendshipService>();
             builder.Services.AddScoped<IChatService, ChatService>();
+
             var app = builder.Build();
 
-            app.UseHttpsRedirection();
+            app.DatabaseMigrate();
+
+            //app.UseHttpsRedirection();
             app.UseStaticFiles();
             app.UseCookiePolicy();
 

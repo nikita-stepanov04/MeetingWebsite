@@ -12,19 +12,22 @@ namespace MeetingWebsite.Infrastracture.Models
         public static IServiceCollection AddInfrastructureServices(
             this IServiceCollection services, ConfigurationManager config)
         {
-            string? dbConnection = config.GetConnectionString("DbConnection");
-            string? redisConnection = config.GetConnectionString("RedisConnection");
+            string? dbConnection = config
+                .GetConnectionString("DbConnection")
+                .InjectEnvironmentVariables();            
+
+            string? redisConnection = config
+                .GetConnectionString("RedisConnection")
+                .InjectEnvironmentVariables();
+
             if (dbConnection != null && redisConnection != null)
             {
-                services.AddDbContext<DataContext>(opts =>
-                {
-                    opts.UseSqlServer(dbConnection, opts
-                        => opts.MigrationsAssembly("MeetingWebsite.Infrastracture"));
-                    opts.EnableSensitiveDataLogging();
-                });
+                services.AddDbContext<DataContext>(opts => 
+                    opts.UseNpgsql(dbConnection, opts
+                        => opts.MigrationsAssembly("MeetingWebsite.Infrastracture")));
 
                 services.AddDbContext<IdentityContext>(opts =>
-                    opts.UseSqlServer(dbConnection, opts
+                    opts.UseNpgsql(dbConnection, opts
                         => opts.MigrationsAssembly("MeetingWebsite.Infrastracture")));
 
                 services.AddStackExchangeRedisCache(opts =>
@@ -36,7 +39,8 @@ namespace MeetingWebsite.Infrastracture.Models
             }
             else
             {
-                throw new Exception("Connection strings are undefined");
+                throw new Exception($"Connection strings are undefined," +
+                    $" db connection string: {dbConnection}, redis connection string: {redisConnection}");
             }
             return services;
         }

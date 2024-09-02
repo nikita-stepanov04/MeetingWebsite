@@ -8,6 +8,8 @@ namespace MeetingWebsite.Domain.Interfaces
 
         Task<bool> AcceptFriendshipRequestAsync(long senderId, long receiverId);
 
+        Task RejectFriendshipRequestsAsync(IEnumerable<FriendshipRequest> requests);
+
         Task<bool> RejectFriendshipRequestAsync(long senderId, long receiverId);
 
         Task<bool> DeleteFromFriendsAsync(long userId, long friendId);

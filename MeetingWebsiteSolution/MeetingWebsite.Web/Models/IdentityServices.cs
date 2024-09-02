@@ -1,4 +1,5 @@
-﻿using MeetingWebsite.Infrastracture.Models.Identity;
+﻿using MeetingWebsite.Infrastracture.Models;
+using MeetingWebsite.Infrastracture.Models.Identity;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
@@ -38,7 +39,7 @@ namespace MeetingWebsite.Web.Models
         public static IServiceCollection AddIdentityServices(this IServiceCollection services,
             IConfiguration config)
         {
-            string? jwtSecret = config["JwtSecret"];
+            string? jwtSecret = config["JwtSecret"].InjectEnvironmentVariables();
             if (jwtSecret != null)
             {
                 services.AddIdentity<AppUser, AppRole>(opts =>

@@ -2,14 +2,13 @@
 using MeetingWebsite.Domain.Interfaces;
 using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
-using System.Drawing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Imaging;
+using SixLabors.ImageSharp;
+using SixLabors.ImageSharp.PixelFormats;
+using SixLabors.ImageSharp.Processing;
 using DomainImage = MeetingWebsite.Domain.Models.Image;
 
 namespace MeetingWebsite.Application.Services
 {
-#pragma warning disable CA1416
     public class ImageService : IImageService
     {
         private readonly int _defaultWidth = 500;
@@ -19,7 +18,6 @@ namespace MeetingWebsite.Application.Services
         private readonly int _maxCompressHeight = 800;
 
         private readonly string _mimeType = "image/jpeg";
-        private readonly ImageFormat _imageType = ImageFormat.Jpeg;
         private readonly string ImageCachePrefix = "Image";
 
         private readonly IRepository<DomainImage, long> _imageRepository;
@@ -43,8 +41,7 @@ namespace MeetingWebsite.Application.Services
         public async Task<DomainImage> CreateFromFormFileCompressedOriginalAspectRatio(
             IFormFile formFile)
         {
-            return await CreateAsync(await
-                GetImageFromFormFileAsync(formFile, CompressImageInStream));
+            return await CreateAsync(await GetImageFromFormFileAsync(formFile, CompressImageInStream));
         }
 
         public async Task<DomainImage> CreateFromFileAsync(string filePath)
@@ -92,7 +89,7 @@ namespace MeetingWebsite.Application.Services
                     })
                     .FirstOrDefaultAsync();                
                 return image;
-            }
+            }  
             image.Bitmap = [];
             return image;
         }
@@ -107,82 +104,63 @@ namespace MeetingWebsite.Application.Services
 
         private void CropImageInStream(MemoryStream stream)
         {
-            using (Bitmap original = new(stream))
+            using (var image = Image.Load<Rgba32>(stream))
             {
-                Resolution crop = GetCroppedImageResolution(original);
+                Resolution crop = GetCroppedImageResolution(image);
 
-                // Span to center crop area on the original image
-                int cropXSpan = (original.Width - crop.Width) / 2;
-                int cropYSpan = (original.Height - crop.Height) / 2;
+                image.Mutate(x => x.Crop(
+                    new Rectangle(crop.XSpan, crop.YSpan, crop.Width, crop.Height)));
 
-                Rectangle cropArea = new(cropXSpan, cropYSpan, crop.Width, crop.Height);
-                using (Bitmap cropImage = new(cropArea.Width, cropArea.Height))
-                {
-                    using (Graphics graphics = Graphics.FromImage(cropImage))
-                    {
-                        graphics.DrawImage(original,
-                            new Rectangle(0, 0, cropImage.Width, cropImage.Height),
-                            cropArea, GraphicsUnit.Pixel);
-                    }
-                    stream.SetLength(0);
-                    stream.Seek(0, SeekOrigin.Begin);
-                    cropImage.Save(stream, _imageType);
-                }
+                stream.Seek(0, SeekOrigin.Begin);
+                image.SaveAsJpeg(stream);
             }
         }
 
         private void CompressImageInStream(MemoryStream stream)
         {
-            using (Bitmap original = new(stream))
+            using (var image = Image.Load<Rgba32>(stream))
             {
-                Resolution compress = GetCompressedImageResolution(original);
+                Resolution compress = GetCompressedImageResolution(image);
 
-                using (Bitmap compressedImage = new Bitmap(compress.Width, compress.Height))
+                image.Mutate(x => x.Resize(new ResizeOptions
                 {
-                    using (Graphics graphics = Graphics.FromImage(compressedImage))
-                    {
-                        graphics.InterpolationMode = InterpolationMode.HighQualityBicubic;
-                        graphics.SmoothingMode = SmoothingMode.HighQuality;
-                        graphics.PixelOffsetMode = PixelOffsetMode.HighQuality;
-                        graphics.CompositingQuality = CompositingQuality.HighQuality;
+                    Mode = ResizeMode.Max,
+                    Size = new Size(compress.Width, compress.Height)
+                }));
 
-                        graphics.DrawImage(original, 0, 0, compress.Width, compress.Height);
-                    }
-                    stream.SetLength(0);
-                    stream.Seek(0, SeekOrigin.Begin);
-                    compressedImage.Save(stream, _imageType);
-                }
+                stream.Seek(0, SeekOrigin.Begin);
+                image.SaveAsJpeg(stream);
             }
         }
 
-        private Resolution GetCompressedImageResolution(Bitmap original)
+        private Resolution GetCompressedImageResolution(Image<Rgba32> image)
         {
             Resolution res = new();
-            if (original.Width > _maxCompressWidth || original.Height > _maxCompressHeight)
+            if (image.Width > _maxCompressWidth || image.Height > _maxCompressHeight)
             {
-                if (original.Width > original.Height)
+                if (image.Width > image.Height)
                 {
                     res.Width = _maxCompressWidth;
-                    res.Height = (int)((float)original.Height / original.Width * _maxCompressWidth);
+                    res.Height = (int)((float)image.Height / image.Width * _maxCompressWidth);
                 }
                 else
                 {
                     res.Height = _maxCompressHeight;
-                    res.Width = (int)((float)original.Width / original.Height * _maxCompressHeight);
+                    res.Width = (int)((float)image.Width / image.Height * _maxCompressHeight);
                 }
             }
             else
             {
-                res.Width = original.Width;
-                res.Height = original.Height;
+                res.Width = image.Width;
+                res.Height = image.Height;
             }
             return res;
         }
 
-        private Resolution GetCroppedImageResolution(Bitmap original)
+        private Resolution GetCroppedImageResolution(Image<Rgba32> image)
         {
-            int widthDiff = original.Width - _defaultWidth;
-            int heightDiff = original.Height - _defaultHeight;
+            int widthDiff = image.Width - _defaultWidth;
+            int heightDiff = image.Height - _defaultHeight;
 
             Resolution res = new();
 
@@ -209,6 +187,10 @@ namespace MeetingWebsite.Application.Services
                 res.Width = _defaultWidth;
                 res.Height = _defaultHeight;
             }
+
+            res.XSpan = (image.Width - res.Width) / 2;
+            res.YSpan = (image.Height - res.Height) / 2;
+
             return res;
         }
 
@@ -219,6 +201,7 @@ namespace MeetingWebsite.Application.Services
             using (MemoryStream stream = new())
             {
                 await formFile.CopyToAsync(stream);
+                stream.Seek(0, SeekOrigin.Begin);
                 action(stream);
 
                 image.Bitmap = stream.ToArray();                
@@ -233,20 +216,23 @@ namespace MeetingWebsite.Application.Services
 
             if (!File.Exists(filePath))
                 throw new FileNotFoundException($"File with path: {filePath} was not found");
-            using (MemoryStream stream = new(File.ReadAllBytes(filePath)))
+            using (MemoryStream stream = new())
             {
+                stream.Write(File.ReadAllBytes(filePath));
+                stream.Seek(0, SeekOrigin.Begin);
                 CropImageInStream(stream);
                 image.Bitmap = stream.ToArray();
                 image.MimeType = _mimeType;
             }
             return image;
         }
-#pragma warning restore
 
         struct Resolution
         {
             public int Width { get; set; }
             public int Height { get; set; }
+            public int XSpan { get; set; }
+            public int YSpan { get; set; }
         }
     }
 }
