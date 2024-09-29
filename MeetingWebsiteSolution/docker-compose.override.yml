@@ -5,26 +5,22 @@ services:
     networks:
       - internet
     depends_on:
-      - postgres
+      - sqlserver
       - redis
 
-  postgres:
-    container_name: postgres
-    image: postgres:alpine
+  sqlserver:
+    container_name: sqlserver
+    image: sql-server
     restart: always
     environment:
-      - POSTGRES_PASSWORD=${DB_PASSWORD}
-      - POSTGRES_DB=${DB_NAME}
+      - SA_PASSWORD=${DB_PASSWORD}
     ports:
-      - 5432:5432
+      - 1433:1433
+    build: 
+      context: .
+      dockerfile: sqlserver/Dockerfile
     networks:
       - internet
-
-  redis:
-    ports:
-      - 6379:6379
-    networks:
-      - internet
-
+      
 networks:
   internet:

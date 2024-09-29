@@ -23,11 +23,11 @@ namespace MeetingWebsite.Infrastracture.Models
             if (dbConnection != null && redisConnection != null)
             {
                 services.AddDbContext<DataContext>(opts => 
-                    opts.UseNpgsql(dbConnection, opts
+                    opts.UseSqlServer(dbConnection, opts
                         => opts.MigrationsAssembly("MeetingWebsite.Infrastracture")));
 
                 services.AddDbContext<IdentityContext>(opts =>
-                    opts.UseNpgsql(dbConnection, opts
+                    opts.UseSqlServer(dbConnection, opts
                         => opts.MigrationsAssembly("MeetingWebsite.Infrastracture")));
 
                 services.AddStackExchangeRedisCache(opts =>
